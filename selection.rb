@@ -16,18 +16,35 @@ end
 def calc_diff(model, challenger)
   diff_sum = 0.0
   challenger[0].each_index do |i|
-    diff_sum += (challenger[0][i].to_f - model[0][i].to_f).abs
+    diff_sum += (challenger[0][i] - model[0][i]).abs
   end
   return diff_sum / model[0].size, challenger[1].to_f / model[1].to_f
 end
 
-def efficiency(diff) 
-  return (diff[0] + 1) * (diff[1])
-
+def efficiency(diff)
+  if diff[0].nan? 
+    return Float::INFINITY
+  end
+  if diff[0] > 0.01
+    return 100 + diff[0]# + diff[1]
+  else
+    return diff[1]
+  end
 end
 
 
-
+def select_challengers(chals, model_result, test_set, quota)
+  results = chals.map do |chal|
+    #begin
+      [efficiency(calc_diff(model_result, measure(chal.proc, test_set))), chal]
+    #rescue
+    #  puts chal.formula.string_view
+    #  exit
+    #end
+  end
+  return (results.sort {|a,b| a[0] <=> b[0]}).slice(0, quota)
+end
+  
 
 
 

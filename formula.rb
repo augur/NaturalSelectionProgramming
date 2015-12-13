@@ -4,6 +4,7 @@
 class Formula
   attr_reader :value
   attr_accessor :variables
+  attr_reader :price
   
   def string_view
     nil
@@ -23,12 +24,21 @@ class Constant < Formula
 end
 
 class IntConstant < Constant
+  
+  def price
+    1
+  end
+  
   def string_view
     "%d" % value
   end
 end
 
 class FloatConstant < Constant
+  def price
+    2
+  end
+  
   def string_view
     "%f" % value
   end
@@ -38,6 +48,10 @@ class Variable < Formula
   attr_reader :name
   def initialize(name)
     @name = name
+  end
+  
+  def price
+    3
   end
 
   def value
@@ -59,15 +73,16 @@ class BinaryOperator < Formula
   end
 
   def variables= vars
+    @variables = vars
     left_value.variables = vars
     right_value.variables = vars
   end
   
   def cut
-    @left_value = left_value.cut
-    @right_value = right_value.cut
-    if @left_value.is_a? Constant and right_value.is_a? Constant
-      if @left_value.is_a? IntConstant and right_value.is_a? IntConstant
+    @left_value = @left_value.cut
+    @right_value = @right_value.cut
+    if @left_value.is_a? Constant and @right_value.is_a? Constant
+      if @left_value.is_a? IntConstant and @right_value.is_a? IntConstant
         IntConstant.new value
       else
         FloatConstant.new value
@@ -77,6 +92,10 @@ class BinaryOperator < Formula
     end
   end
   
+  def price
+    @left_value.price + @right_value.price + @price 
+  end
+    
 
   def string_view
     '( ' + left_value.string_view + ' ' + sign + ' ' + right_value.string_view + ' )'
@@ -119,7 +138,35 @@ class DivisionOperator < BinaryOperator
   end
 
   def value
-    @left_value.value / @right_value.value
+    divider = @right_value.value
+    return Float::INFINITY if divider == 0
+    return @left_value.value / divider
+  end
+end
+
+class PowerOperator < BinaryOperator
+  def sign
+    '**'
+  end
+  
+  def value
+    base = @left_value.value
+    pow = @right_value.value
+    
+    if base == 0 and pow < 0
+      return Float::INFINITY
+    end
+    if pow.abs > 100 #stop with too big powers
+      return Float::INFINITY
+    end
+    
+    result = base ** pow
+    if result.is_a? Complex
+      return result.real
+    end
+      return result
+    #puts "POWER: #{base} ** #{pow}"
+    #return @left_value.value ** @right_value.value
   end
 end
 
