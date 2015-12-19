@@ -1,18 +1,27 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+
 class Formula
   attr_reader :value
   attr_accessor :variables
-  attr_reader :price
   
   def string_view
     nil
   end
   
-  #Partial solution of formula reduction
+  #Try to reduct formula
   def cut
     self
+  end
+  
+  def price
+    FORMULA_CLASSES_PRICE[self.class]
+  end
+  
+  #debug purpose
+  def validate_vars
+    not @variables.nil?
   end
 end
 
@@ -20,25 +29,15 @@ class Constant < Formula
   def initialize(const)
     @value = const
   end
-
 end
 
 class IntConstant < Constant
-  
-  def price
-    1
-  end
-  
   def string_view
     "%d" % value
   end
 end
 
 class FloatConstant < Constant
-  def price
-    2
-  end
-  
   def string_view
     "%f" % value
   end
@@ -48,10 +47,6 @@ class Variable < Formula
   attr_reader :name
   def initialize(name)
     @name = name
-  end
-  
-  def price
-    3
   end
 
   def value
@@ -74,8 +69,8 @@ class BinaryOperator < Formula
 
   def variables= vars
     @variables = vars
-    left_value.variables = vars
-    right_value.variables = vars
+    @left_value.variables = vars
+    @right_value.variables = vars
   end
   
   def cut
@@ -93,50 +88,37 @@ class BinaryOperator < Formula
   end
   
   def price
-    @left_value.price + @right_value.price + @price 
+    FORMULA_CLASSES_PRICE[self.class] + @left_value.price + @right_value.price     
   end
-    
 
   def string_view
-    '( ' + left_value.string_view + ' ' + sign + ' ' + right_value.string_view + ' )'
+    '( ' + left_value.string_view + ' ' + BINARY_OPERATORS_SIGN[self.class] + ' ' + right_value.string_view + ' )'
+  end
+  
+  def validate_vars
+    (not @variables.nil?) and @left_value.validate_vars and @right_value.validate_vars
   end
 end
 
 class AdditionOperator < BinaryOperator
-  def sign
-    '+'
-  end
-  
   def value
     @left_value.value + @right_value.value
   end
 end
 
 class SubtractionOperator < BinaryOperator
-  def sign
-    '-'
-  end
-
   def value
     @left_value.value - @right_value.value
   end
 end
 
 class MultiplicationOperator < BinaryOperator
-  def sign
-    '*'
-  end
-
   def value
     @left_value.value * @right_value.value
   end
 end
 
 class DivisionOperator < BinaryOperator
-  def sign
-    '/'
-  end
-
   def value
     divider = @right_value.value
     return Float::INFINITY if divider == 0
@@ -165,15 +147,26 @@ class PowerOperator < BinaryOperator
       return result.real
     end
       return result
-    #puts "POWER: #{base} ** #{pow}"
-    #return @left_value.value ** @right_value.value
   end
 end
 
 
+BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, PowerOperator]
 
+BINARY_OPERATORS_SIGN  = {AdditionOperator       => '+',
+                          SubtractionOperator    => '-',
+                          MultiplicationOperator => '*',
+                          DivisionOperator       => '/',
+                          PowerOperator          => '**'}
 
-
+FORMULA_CLASSES_PRICE =  {IntConstant            => 1,
+                          FloatConstant          => 3,
+                          Variable               => 5,
+                          AdditionOperator       => 10,
+                          SubtractionOperator    => 10,
+                          MultiplicationOperator => 15,
+                          DivisionOperator       => 15,
+                          PowerOperator          => 30}
 
 
 #Constructors shortcuts
@@ -205,7 +198,9 @@ def div v1, v2
   DivisionOperator.new v1, v2
 end
 
-
+def pow v1, v2
+  PowerOperator.new v1, v2
+end
 
 
 
@@ -219,4 +214,5 @@ if __FILE__ == $0
   puts f.string_view #x*2 - 1.5
   f.variables = {:x => 3}
   puts f.value       #4.5
+  puts f.price       #36
 end
