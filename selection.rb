@@ -33,7 +33,7 @@ def efficiency(diff)
 end
 
 
-def select_challengers(chals, model_result, test_set, quota)
+def select_challengers(chals, model_result, test_set, quota_best, quota_random)
   results = chals.map do |chal|
     #begin
       [efficiency(calc_diff(model_result, measure(chal.proc, test_set))), chal]
@@ -42,7 +42,19 @@ def select_challengers(chals, model_result, test_set, quota)
     #  exit
     #end
   end
-  return (results.sort {|a,b| a[0] <=> b[0]}).slice(0, quota)
+  results.sort! {|a,b| a[0] <=> b[0]}
+  best = results.slice(0, quota_best)
+  random = []
+  rest = results.slice(quota_best..-1) || []
+  
+  #puts "Results: #{results.size}, best:#{best.size}, rest:#{rest.size}"
+  
+  quota_random.times do 
+    break if rest.empty? 
+    random << rest.delete_at(rand(rest.size))
+  end
+  
+  return best + random
 end
   
 

@@ -34,7 +34,7 @@ INT_CONSTANTS = [-1, -2, 1, 2]
 #Chance that variable will be used
 NEW_VARIABLE = 0.2
 
-ALLOWED_BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator]#, PowerOperator]
+ALLOWED_BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, PowerOperator]
 
 
 def mutate_Formula(f, action = nil)
@@ -150,7 +150,7 @@ def mutate_IntConstant(ic)
 end
 
 def mutate_FloatConstant(fc)
-  if FLOAT_TO_INT > rand
+  if FLOAT_TO_INT > rand and (not fc.value.infinite?)
     IntConstant.new fc.value.round
   else
     FloatConstant.new(fc.value + random_Float)    

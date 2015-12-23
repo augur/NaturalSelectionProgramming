@@ -26,18 +26,23 @@ class Formula
 end
 
 class Constant < Formula
-  def initialize(const)
-    @value = const
-  end
 end
 
 class IntConstant < Constant
+  def initialize(int_const)
+    @value = Integer(int_const)
+  end
+  
   def string_view
     "%d" % value
   end
 end
 
 class FloatConstant < Constant
+  def initialize(float_const)
+    @value = Float(float_const)
+  end
+  
   def string_view
     "%f" % value
   end
@@ -76,8 +81,9 @@ class BinaryOperator < Formula
   def cut
     @left_value = @left_value.cut
     @right_value = @right_value.cut
+    local_value = value
     if @left_value.is_a? Constant and @right_value.is_a? Constant
-      if @left_value.is_a? IntConstant and @right_value.is_a? IntConstant
+      if @left_value.is_a? IntConstant and @right_value.is_a? IntConstant and local_value.respond_to?(:infinite?) and (not local_value.infinite?)
         IntConstant.new value
       else
         FloatConstant.new value
