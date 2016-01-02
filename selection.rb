@@ -10,25 +10,38 @@ def measure(proc, args_array)
   end
   e = Time.now.nsec
   duration = (e > b) ? e - b : 1000000000 - e - b
-  return result, duration
+  return result
 end
 
 def calc_diff(model, challenger)
   diff_sum = 0.0
-  challenger[0].each_index do |i|
-    diff_sum += (challenger[0][i] - model[0][i]).abs
+  max = nil
+  challenger.each_index do |i|
+    diff = (challenger[i].to_f - model[i].to_f).abs
+    diff_sum += diff
+    if max.nil?
+      max = diff
+    elsif diff > max
+      max = diff
+    end
   end
-  return diff_sum / model[0].size, challenger[1].to_f / model[1].to_f
+  begin
+  return max + diff_sum / challenger.size
+  rescue
+    puts diffs
+    puts "error"
+    exit
+  end
 end
 
-def efficiency(diff)
-  if diff[0].nan? 
+def efficiency(diff, price)
+  if diff.nan? 
     return Float::INFINITY
   end
-  if diff[0] > 0.01
-    return 100 + diff[0]# + diff[1]
+  if diff > 0.01
+    return 1000000 + diff
   else
-    return diff[1]
+    return price
   end
 end
 
@@ -36,7 +49,7 @@ end
 def select_challengers(chals, model_result, test_set, quota_best, quota_random)
   results = chals.map do |chal|
     #begin
-      [efficiency(calc_diff(model_result, measure(chal.proc, test_set))), chal]
+      [efficiency(calc_diff(model_result, measure(chal.proc, test_set))[0], chal.formula.price), chal]
     #rescue
     #  puts chal.formula.string_view
     #  exit

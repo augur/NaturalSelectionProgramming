@@ -7,9 +7,9 @@ require_relative 'formula'
 #=== Mutation Probability Constants ===
 
 #Dice rolls 0..9
-FORMULA_GROW = 0..2 
-FORMULA_SHRINK = 3..5
-FORMULA_SHIFT = 6..8
+FORMULA_GROW = 0..1 
+FORMULA_SHRINK = 2..4
+FORMULA_SHIFT = 5..8
 FORMULA_CUT = 9
 
 ACTIONS = [:grow, :shrink, :shift, :cut]
@@ -23,7 +23,7 @@ INT_TO_FLOAT = 0.1
 FLOAT_TO_INT = 0.1
 
 #Chance Binary Operator affect self rather than one of its values
-BOP_AFFECT_SELF = 0.2
+BOP_AFFECT_SELF = 0.15
 
 #Dice rolls 0..3
 BOP_SWAP = 0..1
@@ -34,7 +34,7 @@ INT_CONSTANTS = [-1, -2, 1, 2]
 #Chance that variable will be used
 NEW_VARIABLE = 0.2
 
-ALLOWED_BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, PowerOperator]
+ALLOWED_BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator]#, PowerOperator]
 
 
 def mutate_Formula(f, action = nil)
