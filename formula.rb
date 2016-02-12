@@ -47,6 +47,7 @@ end
 class FloatConstant < Constant
   def initialize(float_const)
     @value = Float(float_const)
+    raise ArgumentError.new "Incorrect value" unless @value.finite?
   end
   
   def string_view

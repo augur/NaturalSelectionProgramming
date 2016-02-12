@@ -46,6 +46,14 @@ class TestFormula < Test::Unit::TestCase
     assert_raise(ArgumentError) do
       f3 = FloatConstant.new "am string"
     end
+    
+    assert_raise(ArgumentError) do
+      f4 = FloatConstant.new Float::NAN
+    end
+
+    assert_raise(ArgumentError) do
+      f5 = FloatConstant.new Float::INFINITY
+    end
   end
   
 end
