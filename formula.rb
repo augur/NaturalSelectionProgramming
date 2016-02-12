@@ -2,15 +2,23 @@
 # encoding: utf-8
 
 
+
+
+
+#Abstract base class. Don't try to create it.
 class Formula
-  attr_reader :value
-  attr_accessor :variables
-  
-  def string_view
-    nil
+  def initialize
+    raise "Abstract class construction"
   end
   
-  #Try to reduct formula
+  def value(variables = nil)
+    @value
+  end
+  
+  def string_view
+    @string_view
+  end
+  
   def cut
     self
   end
@@ -18,14 +26,12 @@ class Formula
   def price
     FORMULA_CLASSES_PRICE[self.class]
   end
-  
-  #debug purpose
-  def validate_vars
-    not @variables.nil?
-  end
 end
 
 class Constant < Formula
+  def initialize
+    super
+  end
 end
 
 class IntConstant < Constant
@@ -44,10 +50,10 @@ class FloatConstant < Constant
   end
   
   def string_view
-    "%f" % value
+    "%.3f" % value
   end
 end
-
+### Refactored up to this ### 
 class Variable < Formula
   attr_reader :name
   def initialize(name)
@@ -175,6 +181,7 @@ FORMULA_CLASSES_PRICE =  {IntConstant            => 1,
                           PowerOperator          => 30}
 
 
+
 #Constructors shortcuts
 def ic val
   IntConstant.new val
@@ -208,17 +215,3 @@ def pow v1, v2
   PowerOperator.new v1, v2
 end
 
-
-
-
-
-
-if __FILE__ == $0
-  m1 = multip((v :x),(fc 2))
-  m2 = fc 1.5
-  f = minus m1, m2
-  puts f.string_view #x*2 - 1.5
-  f.variables = {:x => 3}
-  puts f.value       #4.5
-  puts f.price       #36
-end
