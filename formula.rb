@@ -66,62 +66,52 @@ class Variable < Formula
     @name.to_s
   end
 end
-### Refactored up to this ### 
+ 
 class BinaryOperator < Formula
-  attr_reader :left_value
-  attr_reader :right_value
+  attr_reader :operand1
+  attr_reader :operand2
   
-  def initialize(left_value, right_value)
-    @left_value = left_value
-    @right_value = right_value
+  @@commutative = nil
+  
+  def initialize(operand1, operand2)
+    raise "Abstract class construction" if self.instance_of? BinaryOperator
+    raise ArgumentError.new "Operands must be Formula type" unless
+    operand1.is_a?(Formula) && operand2.is_a?(Formula)
+    @operand1 = operand1
+    @operand2 = operand2
   end
 
-  def variables= vars
-    @variables = vars
-    @left_value.variables = vars
-    @right_value.variables = vars
-  end
-  
   def cut
-    @left_value = @left_value.cut
-    @right_value = @right_value.cut
-    local_value = value
-    if @left_value.is_a? Constant and @right_value.is_a? Constant
-      if @left_value.is_a? IntConstant and @right_value.is_a? IntConstant and local_value.respond_to?(:infinite?) and (not local_value.infinite?)
-        IntConstant.new value
-      else
-        FloatConstant.new value
-      end
-    else
-      self
-    end
+    #NYI
+    self
   end
   
   def price
-    FORMULA_CLASSES_PRICE[self.class] + @left_value.price + @right_value.price     
+    FORMULA_CLASSES_PRICE[self.class] + @operand1.price + @operand2.price     
   end
 
-  def string_view
-    '( ' + left_value.string_view + ' ' + BINARY_OPERATORS_SIGN[self.class] + ' ' + right_value.string_view + ' )'
-  end
-  
-  def validate_vars
-    (not @variables.nil?) and @left_value.validate_vars and @right_value.validate_vars
+  def to_s
+    "(#{@operand1}" + BINARY_OPERATORS_SIGN[self.class] + "#{@operand2})"
   end
 end
 
 class AdditionOperator < BinaryOperator
-  def value
-    @left_value.value + @right_value.value
+  @@commutative = true
+  
+  def value(variables = nil)
+    @operand1.value(variables) + @operand2.value(variables)
   end
 end
 
 class SubtractionOperator < BinaryOperator
-  def value
-    @left_value.value - @right_value.value
+  @@commutative = false
+  
+  def value(variables = nil)
+    @operand1.value(variables) - @operand2.value(variables)
   end
 end
 
+### Refactored up to this ###
 class MultiplicationOperator < BinaryOperator
   def value
     @left_value.value * @right_value.value
