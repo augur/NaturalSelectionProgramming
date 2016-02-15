@@ -15,10 +15,6 @@ class Formula
     @value
   end
   
-  def string_view
-    @string_view
-  end
-  
   def cut
     self
   end
@@ -39,7 +35,7 @@ class IntConstant < Constant
     @value = Integer(int_const)
   end
   
-  def string_view
+  def to_s
     "%d" % value
   end
 end
@@ -50,26 +46,27 @@ class FloatConstant < Constant
     raise ArgumentError.new "Incorrect value" unless @value.finite?
   end
   
-  def string_view
+  def to_s
     "%.3f" % value
   end
 end
-### Refactored up to this ### 
+
 class Variable < Formula
-  attr_reader :name
   def initialize(name)
+    raise ArgumentError.new "Name must be symbol" unless name.class == Symbol
     @name = name
   end
 
-  def value
-    variables[name]
+  def value(variables = nil)
+    raise ArgumentError.new "Variable name not found" unless variables.has_key?(@name)
+    variables[@name]
   end
 
-  def string_view
-    name.to_s
+  def to_s
+    @name.to_s
   end
 end
-    
+### Refactored up to this ### 
 class BinaryOperator < Formula
   attr_reader :left_value
   attr_reader :right_value
