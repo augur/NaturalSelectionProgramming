@@ -2,9 +2,6 @@
 # encoding: utf-8
 
 
-
-
-
 #Abstract base class. Don't try to create it.
 class Formula
   def initialize
@@ -24,11 +21,13 @@ class Formula
   end
 end
 
+
 class Constant < Formula
   def initialize
     super
   end
 end
+
 
 class IntConstant < Constant
   def initialize(int_const)
@@ -40,6 +39,7 @@ class IntConstant < Constant
   end
 end
 
+
 class FloatConstant < Constant
   def initialize(float_const)
     @value = Float(float_const)
@@ -50,6 +50,7 @@ class FloatConstant < Constant
     "%.3f" % value
   end
 end
+
 
 class Variable < Formula
   def initialize(name)
@@ -67,6 +68,7 @@ class Variable < Formula
   end
 end
  
+
 class BinaryOperator < Formula
   attr_reader :operand1
   attr_reader :operand2
@@ -82,8 +84,28 @@ class BinaryOperator < Formula
   end
 
   def cut
-    #NYI
-    self
+    new_op1 = @operand1.cut
+    new_op2 = @operand2.cut
+
+    consts = [new_op1, new_op2].count {|o| o.is_a? Constant}
+
+    #simplest case, cannot cut more
+    if (consts == 0)
+      return self.class.new(new_op1, new_op2)
+    #Both operands are constant  
+    elsif (consts == 2) 
+      #if both are Int, then Int, otherwise Float
+      if (new_op1.is_a?(IntConstant)&&new_op2.is_a?(IntConstant))
+        return IntConstant.new operate(new_op1, new_op2)
+      else
+        return FloatConstant.new operate(new_op1, new_op2)
+      end
+    #where strange things start      
+    elsif (consts == 1)
+      return self
+    else
+      raise "assertion failed!" #unreachable, hope it is
+    end
   end
   
   def price
@@ -93,23 +115,34 @@ class BinaryOperator < Formula
   def to_s
     "(#{@operand1}" + BINARY_OPERATORS_SIGN[self.class] + "#{@operand2})"
   end
+
+  def value(variables = nil)
+    operate(@operand1, @operand2)
+  end
 end
+
 
 class AdditionOperator < BinaryOperator
   @@commutative = true
   
-  def value(variables = nil)
-    @operand1.value(variables) + @operand2.value(variables)
+  private
+
+  def operate(op1, op2, vars = nil)
+    op1.value(vars) + op2.value(vars)
   end
 end
+
 
 class SubtractionOperator < BinaryOperator
   @@commutative = false
   
-  def value(variables = nil)
-    @operand1.value(variables) - @operand2.value(variables)
+  private
+
+  def operate(op1, op2, vars = nil)
+    op1.value(vars) - op2.value(vars)
   end
 end
+
 
 ### Refactored up to this ###
 class MultiplicationOperator < BinaryOperator
