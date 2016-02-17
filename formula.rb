@@ -73,8 +73,6 @@ class BinaryOperator < Formula
   attr_reader :operand1
   attr_reader :operand2
   
-  @@commutative = nil
-  
   def initialize(operand1, operand2)
     raise "Abstract class construction" if self.instance_of? BinaryOperator
     raise ArgumentError.new "Operands must be Formula type" unless
@@ -87,24 +85,20 @@ class BinaryOperator < Formula
     new_op1 = @operand1.cut
     new_op2 = @operand2.cut
 
-    consts = [new_op1, new_op2].count {|o| o.is_a? Constant}
+    kind1 = operand_kind(new_op1)
+    kind2 = operand_kind(new_op2)
 
-    #simplest case, cannot cut more
-    if (consts == 0)
-      return self.class.new(new_op1, new_op2)
-    #Both operands are constant  
-    elsif (consts == 2) 
-      #if both are Int, then Int, otherwise Float
-      if (new_op1.is_a?(IntConstant)&&new_op2.is_a?(IntConstant))
-        return IntConstant.new operate(new_op1, new_op2)
-      else
-        return FloatConstant.new operate(new_op1, new_op2)
-      end
-    #where strange things start      
-    elsif (consts == 1)
-      return self
+    #stub
+    if (kind1 == :const) && (kind2 == :const)
+      return cut_to_const(new_op1, new_op2)
+    elsif (kind1 == :f_const) && (kind2 == :const)
+      return nil
+    elsif (kind1 == :const) && (kind2 == :f_const)
+      return nil
+    elsif (kind1 == :f_const) && (kind2 == :f_const)
+      return nil
     else
-      raise "assertion failed!" #unreachable, hope it is
+      return self.class.new(new_op1, new_op2)
     end
   end
   
@@ -119,28 +113,50 @@ class BinaryOperator < Formula
   def value(variables = nil)
     operate(@operand1, @operand2)
   end
+
+  private
+
+  #Both arguments are meant to be Constants
+  def cut_to_const(c1, c2)
+    #if both are Int, then Int, otherwise Float
+    if (c1.is_a?(IntConstant)&&c2.is_a?(IntConstant))
+      return IntConstant.new operate(c1, c2)
+    else
+      return FloatConstant.new operate(c1, c2)
+    end
+  end
+
+  def operand_kind(op)
+    return :const if op.is_a?(Constant)
+    return :f_const if op.is_a?(BinaryOperator) && (op.operand1.is_a?(Constant)||op.operand2.is_a?(Constant))
+    return :unkind    
+  end
 end
 
 
 class AdditionOperator < BinaryOperator
-  @@commutative = true
-  
   private
 
   def operate(op1, op2, vars = nil)
     op1.value(vars) + op2.value(vars)
   end
+
+  def combines_with(other)
+    self.class == other.class or other.class == SubtractionOperator
+  end
 end
 
 
 class SubtractionOperator < BinaryOperator
-  @@commutative = false
-  
   private
 
   def operate(op1, op2, vars = nil)
     op1.value(vars) - op2.value(vars)
   end
+
+  def combines_with(other)
+    self.class == other.class or other.class == AdditionOperator
+  end  
 end
 
 
