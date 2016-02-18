@@ -2,14 +2,24 @@
 # encoding: utf-8
 
 
-:br #bracket
 :u  #unkind, unreductable operand
-4   #constant operand (of type int for simplicity)
+4   #constant (reductable) operand (of type int for simplicity)
 :+
 :-
 :*
 :/
 
+=begin
+	Input looks like [
+					  inner_sign_no, //in range 1..2
+ 					  operand1,
+					  sign1,
+					  operand2,
+					  sign2,
+					  operand3
+		     		 ]
+[+-] and [*/] groups must not be mixed in single input
+=end				
 def prototype_cut(input)
 	result = {
 		:result_op1 => nil,
@@ -40,14 +50,6 @@ def operate(sign, const1, const2)
 	when :/
 		return const1 / const2
 	end
-end
-
-op_group1 = [:+, :-]
-op_group2 = [:*, :/]
-
-def combines?(sign1, sign2)
-	return (op_group1.include?(sign1) && op_group1.include?(sign2))||
-	(op_group2.include?(sign1) && op_group2.include?(sign2))
 end
 
 def commutative?(sign)
