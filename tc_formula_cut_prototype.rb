@@ -5,6 +5,16 @@ require_relative "formula_cut_prototype"
 require "test/unit"
 
 class TestFormulaCutPrototype < Test::Unit::TestCase
+	def test_combined_signs
+		assert_equal(:+, combined_sign(:+, :+))
+		assert_equal(:-, combined_sign(:-, :+))
+		assert_equal(:-, combined_sign(:+, :-))
+		assert_equal(:+, combined_sign(:-, :-))
+		assert_equal(:*, combined_sign(:*, :*))
+		assert_equal(:/, combined_sign(:/, :*))
+		assert_equal(:/, combined_sign(:*, :/))
+		assert_equal(:*, combined_sign(:/, :/))
+	end
 
 	def test_ucc_plus_minus
 		#(u + 4) + 2
