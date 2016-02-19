@@ -33,25 +33,38 @@ def prototype_cut(input)
 		:result_op2 => nil,
 		:result_sign => nil,
 	}
+
+	const_1 = nil
+	const_2 = nil
+	const_sign = nil
+
 	### main algorithm here ###
 	if (operand1 == :u)
-		result[:result_op1] = operand1
+		const_sign = combined_sign(sign1, sign2)
+		const_1 = operand2
+		const_2 = operand3
+
+		result[:result_op1]  = operand1
 		result[:result_sign] = sign1
-		result[:result_op2] = operate(combined_sign(sign1, sign2), operand2, operand3)
-	end
-	if (operand3 == :u)
-		result[:result_op1] = operate(sign1, operand1, operand2)
+		result[:result_op2]  = operate(const_sign, const_1, const_2)
+	elsif (operand2 == :u)
+		const_1 = operand1
+		const_2 = operand3	
+		const_sign = (inner_sign_no == 1) ? sign2 : combined_sign(sign1, sign2)
+
+		result[:result_op1]  = operate(const_sign, const_1, const_2)
+		result[:result_sign] = sign1
+		result[:result_op2]  = operand2
+	elsif (operand3 == :u)
+		const_sign = sign1
+		const_1 = operand1
+		const_2 = operand2		
+
+		result[:result_op1]  = operate(const_sign, const_1, const_2)
 		result[:result_sign] = combined_sign(sign1, sign2)
-		result[:result_op2] = operand3
-	end
-	if (operand2 == :u)
-		result[:result_sign] = sign1
-		result[:result_op2] = operand2
-		if (inner_sign_no == 1)
-			result[:result_op1] = operate(sign2, operand1, operand3)
-		else
-			result[:result_op1] = operate(combined_sign(sign1, sign2), operand1, operand3)
-		end
+		result[:result_op2]  = operand3
+	else
+		raise "Assertion failed" #should be unreachable
 	end
 	###########################
 	return rend_result(result)
