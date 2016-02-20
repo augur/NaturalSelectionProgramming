@@ -93,7 +93,8 @@ class TestFormula < Test::Unit::TestCase
     pr = FORMULA_CLASSES_PRICE[FloatConstant] * 2 +
          FORMULA_CLASSES_PRICE[AdditionOperator]
     assert_equal(pr, op.price)
-    assert_equal("5.000", "#{op.cut}")
+    #assert_equal("5.000", "#{op.cut}")
+    assert_equal(true, op.class.commutative?)
     
     op2 = SubtractionOperator.new p1, p2
     assert_equal(1.0, op2.value)
@@ -101,7 +102,8 @@ class TestFormula < Test::Unit::TestCase
     pr = FORMULA_CLASSES_PRICE[FloatConstant] * 2 +
          FORMULA_CLASSES_PRICE[SubtractionOperator]
     assert_equal(pr, op2.price)
-    assert_equal("1.000", "#{op2.cut}")
+    #assert_equal("1.000", "#{op2.cut}")
+    assert_equal(false, op2.class.commutative?)
   end
   
   def test_bop_cut_1

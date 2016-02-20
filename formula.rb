@@ -90,7 +90,8 @@ class BinaryOperator < Formula
 
     #stub
     if (kind1 == :const) && (kind2 == :const)
-      return cut_to_const(new_op1, new_op2)
+      #return cut_to_const(new_op1, new_op2)
+      return nil
     elsif (kind1 == :f_const) && (kind2 == :const)
       return nil
     elsif (kind1 == :const) && (kind2 == :f_const)
@@ -111,11 +112,12 @@ class BinaryOperator < Formula
   end
 
   def value(variables = nil)
-    operate(@operand1, @operand2)
+    self.class.operate(@operand1, @operand2)
   end
 
   private
 
+=begin Will migrate to formula_cut.rb
   #Both arguments are meant to be Constants
   def cut_to_const(c1, c2)
     #if both are Int, then Int, otherwise Float
@@ -125,38 +127,50 @@ class BinaryOperator < Formula
       return FloatConstant.new operate(c1, c2)
     end
   end
+=end
 
   def operand_kind(op)
     return :const if op.is_a?(Constant)
     return :f_const if op.is_a?(BinaryOperator) && (op.operand1.is_a?(Constant)||op.operand2.is_a?(Constant))
     return :unkind    
   end
+
+
 end
 
 
 class AdditionOperator < BinaryOperator
-  private
+  def self.commutative?
+    true
+  end 
 
-  def operate(op1, op2, vars = nil)
+  def self.operate(op1, op2, vars = nil)
     op1.value(vars) + op2.value(vars)
   end
 
-  def combines_with(other)
-    self.class == other.class or other.class == SubtractionOperator
+  def self.combines_with(other_class)
+    self == other_class or other_class == SubtractionOperator
   end
 end
 
 
 class SubtractionOperator < BinaryOperator
-  private
+  def self.commutative?
+    false
+  end 
 
-  def operate(op1, op2, vars = nil)
+  def self.operate(op1, op2, vars = nil)
     op1.value(vars) - op2.value(vars)
   end
 
-  def combines_with(other)
-    self.class == other.class or other.class == AdditionOperator
-  end  
+  def self.combines_with(other_class)
+    self == other_class or other_class == AdditionOperator
+  end
+
+  #only exists for non-commutative classes
+  def self.inverse_operator
+    AdditionOperator
+  end
 end
 
 
