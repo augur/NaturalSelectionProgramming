@@ -176,21 +176,42 @@ module Formula
   end
 
 
-  ### Refactored up to this ###
   class MultiplicationOperator < BinaryOperator
-    def value
-      @left_value.value * @right_value.value
+    def self.commutative?
+      true
+    end
+
+    def self.operate(op1, op2, vars = nil)
+      op1.value(vars) * op2.value(vars)      
+    end
+
+    def self.combines_with(other_class)
+      self == other_class or other_class == DivisionOperator
     end
   end
+
 
   class DivisionOperator < BinaryOperator
-    def value
-      divider = @right_value.value
-      return Float::INFINITY if divider == 0
-      return @left_value.value / divider
+    def self.commutative?
+      false
+    end 
+
+    #Able to raise ZeroDivisionError
+    def self.operate(op1, op2, vars = nil)
+      op1.value(vars) / op2.value(vars)
+    end
+
+    def self.combines_with(other_class)
+      self == other_class or other_class == MultiplicationOperator
+    end
+
+    #only exists for non-commutative classes
+    def self.inverse_operator
+      MultiplicationOperator
     end
   end
 
+  ### Refactored up to this ###
   class PowerOperator < BinaryOperator
     def sign
       '**'

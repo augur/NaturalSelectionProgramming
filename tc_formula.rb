@@ -87,7 +87,6 @@ class TestFormula < Test::Unit::TestCase
     p2 = Formula::FloatConstant.new 2.0
     
     op = Formula::AdditionOperator.new p1, p2
-    
     assert_equal(5.0, op.value)
     assert_equal("(3.000+2.000)", "#{op}")
     pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
@@ -104,8 +103,19 @@ class TestFormula < Test::Unit::TestCase
     assert_equal(pr, op2.price)
     #assert_equal("1.000", "#{op2.cut}")
     assert_equal(false, op2.class.commutative?)
+    assert_equal(Formula::AdditionOperator, op2.class.inverse_operator)
+
+    op3 = Formula::MultiplicationOperator.new p1, p2
+    assert_equal(6.0, op3.value)
+    assert_equal("(3.000*2.000)", "#{op3}")
+    pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
+         Formula::FORMULA_CLASSES_PRICE[Formula::MultiplicationOperator]    
+    assert_equal(pr, op3.price)
+    #assert_equal("6.000", "#{op3.cut}")
+    assert_equal(true, op3.class.commutative?)
   end
-  
+
+  #should migrate to tc_formula_cut.rb  
   def test_bop_cut_1
     c1 = Formula::IntConstant.new 5
     c2 = Formula::IntConstant.new 3
