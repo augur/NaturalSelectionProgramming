@@ -84,27 +84,9 @@ module Formula
     end
 
     def cut
-      new_op1 = @operand1.cut
-      new_op2 = @operand2.cut
-
-      kind1 = operand_kind(new_op1)
-      kind2 = operand_kind(new_op2)
-
-      #stub
-      if (kind1 == :const) && (kind2 == :const)
-        #return cut_to_const(new_op1, new_op2)
-        return nil
-      elsif (kind1 == :f_const) && (kind2 == :const)
-        return nil
-      elsif (kind1 == :const) && (kind2 == :f_const)
-        return nil
-      elsif (kind1 == :f_const) && (kind2 == :f_const)
-        return nil
-      else
-        return self.class.new(new_op1, new_op2)
-      end
+      FormulaCut::cut(self)
     end
-    
+
     def price
       FORMULA_CLASSES_PRICE[self.class] + @operand1.price + @operand2.price     
     end
@@ -116,28 +98,6 @@ module Formula
     def value(variables = nil)
       self.class.operate(@operand1, @operand2)
     end
-
-    private
-
-=begin Will migrate to formula_cut.rb
-    #Both arguments are meant to be Constants
-    def cut_to_const(c1, c2)
-      #if both are Int, then Int, otherwise Float
-      if (c1.is_a?(IntConstant)&&c2.is_a?(IntConstant))
-        return IntConstant.new operate(c1, c2)
-      else
-        return FloatConstant.new operate(c1, c2)
-      end
-    end
-=end
-
-    def operand_kind(op)
-      return :const if op.is_a?(Constant)
-      return :f_const if op.is_a?(BinaryOperator) && (op.operand1.is_a?(Constant)||op.operand2.is_a?(Constant))
-      return :unkind    
-    end
-
-
   end
 
 
@@ -237,7 +197,9 @@ module Formula
   end
 
 
-  BINARY_OPERATORS = [AdditionOperator, SubtractionOperator, MultiplicationOperator, DivisionOperator, PowerOperator]
+  BINARY_OPERATORS = [AdditionOperator, SubtractionOperator,
+                      MultiplicationOperator, DivisionOperator, 
+                      PowerOperator]
 
   BINARY_OPERATORS_SIGN  = {AdditionOperator       => '+',
                             SubtractionOperator    => '-',

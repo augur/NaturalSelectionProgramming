@@ -113,6 +113,15 @@ class TestFormula < Test::Unit::TestCase
     assert_equal(pr, op3.price)
     #assert_equal("6.000", "#{op3.cut}")
     assert_equal(true, op3.class.commutative?)
+
+    op4 = Formula::DivisionOperator.new p1, p2
+    assert_equal(1.5, op4.value)
+    assert_equal("(3.000/2.000)", "#{op4}")
+    pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
+         Formula::FORMULA_CLASSES_PRICE[Formula::DivisionOperator]    
+    assert_equal(pr, op4.price)
+    #assert_equal("1.500", "#{op4.cut}")
+    assert_equal(false, op4.class.commutative?)    
   end
 
   #should migrate to tc_formula_cut.rb  
