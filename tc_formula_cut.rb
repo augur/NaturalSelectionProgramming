@@ -36,6 +36,22 @@ class TestFormulaCut < Test::Unit::TestCase
     end
   end
 
+  def test_cut_raise
+    assert_raise(ArgumentError) do
+      FormulaCut::cut(Formula::IntConstant.new 42)
+    end
+  end
+
+  def test_cut_2_consts
+    constInt8 = Formula::IntConstant.new 8
+    constInt4 = Formula::IntConstant.new 4
+    op = @plus_op.new(constInt8, constInt4)
+
+    res = FormulaCut::cut(op)
+    assert(res.is_a?(Formula::Constant))
+    assert_equal(12, res.value)
+    assert_equal("12", "#{res}")
+  end
 
   def test_combined_op
     # ++ => +

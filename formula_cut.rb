@@ -8,7 +8,17 @@ require_relative "formula"
 module FormulaCut
 
   def self.cut(binary_op)
-    nil
+    raise ArgumentError.new "Argument have to be Formula::BinaryOperator" unless binary_op.is_a?(Formula::BinaryOperator)
+    cut_operand1 = binary_op.operand1.cut
+    cut_operand2 = binary_op.operand2.cut
+
+    kind_operand1 = operand_kind(cut_operand1)
+    kind_operand2 = operand_kind(cut_operand2)
+
+    if (kind_operand1 == :const && kind_operand2 == :const)
+      return cut_to_constant(binary_op.class, cut_operand1, cut_operand2)
+    end
+    #still a lot to do
   end
 
   ### helper funcs ###
