@@ -7,9 +7,12 @@ require "test/unit"
 
 #Expose module methods for unit testing
 module FormulaCut
-  module_function :combined_operator_class
-  module_function :cut_to_constant
-  module_function :operand_kind
+  class << self
+    public :cut_op_const
+    public :combined_operator_class
+    public :cut_to_constant
+    public :operand_kind
+  end
 end
 
 
@@ -51,6 +54,48 @@ class TestFormulaCut < Test::Unit::TestCase
     assert(res.is_a?(Formula::Constant))
     assert_equal(12, res.value)
     assert_equal("12", "#{res}")
+  end
+
+  def test_cut_const_op_const
+    constInt8 = Formula::IntConstant.new 8
+    constInt4 = Formula::IntConstant.new 4
+    varX = Formula::Variable.new :x
+
+    #8 + (4 + x)
+    nested_op = @plus_op.new(constInt4, varX)
+    op = @plus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(12+x)", "#{res}")
+
+    #8 + (4 - x)
+    nested_op = @minus_op.new(constInt4, varX)
+    op = @plus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(12-x)", "#{res}")
+
+    #8 - (4 - x)
+    nested_op = @minus_op.new(constInt4, varX)
+    op = @minus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(4+x)", "#{res}")
+
+    #8 + (x - 4)
+    nested_op = @minus_op.new(varX, constInt4)
+    op = @plus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(4+x)", "#{res}")
+
+    #8 - (x - 4)
+    nested_op = @minus_op.new(varX, constInt4)
+    op = @minus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(12-x)", "#{res}")
+
+    #8 - (x + 4)
+    nested_op = @plus_op.new(varX, constInt4)
+    op = @minus_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(4-x)", "#{res}")  
   end
 
   def test_combined_op

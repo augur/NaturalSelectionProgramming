@@ -17,14 +17,59 @@ module FormulaCut
 
     if (kind_operand1 == :const && kind_operand2 == :const)
       return cut_to_constant(binary_op.class, cut_operand1, cut_operand2)
+    elsif (kind_operand1 == :const && kind_operand2 == :op_const)
+      #TODO check if combines
+      return cut_op_const(cut_operand1, binary_op.class, cut_operand2.operand1,
+                          cut_operand2.class, cut_operand2.operand2, false)
     end
     #still a lot to do
+
+    #compound cut not applied, return what we have
+    binary_op.class.new(cut_operand1, cut_operand2)
   end
 
   ### helper funcs ###
 
+  #following code nearly copy-pasted from formula_cut_prototype.rb
+  #there it is a bit less complex
+  def self.cut_op_const(op1, sign1, op2, sign2, op3, sign1_is_nested)
+    result_op1 = nil
+    result_sign = nil
+    result_op2 = nil
+    if (operand_kind(op1) == :unkind)
+      const1      = op2
+      const_sign  = combined_operator_class(sign1, sign2)
+      const2      = op3
+
+      result_op1  = op1
+      result_sign = sign1
+      result_op2  = cut_to_constant(const_sign, const1, const2)
+    elsif (operand_kind(op2) == :unkind)
+      const1      = op1
+      const_sign  = sign1_is_nested ? sign2 : combined_operator_class(sign1, sign2)
+      const2      = op3
+
+      result_op1  = cut_to_constant(const_sign, const1, const2)
+      result_sign = sign1
+      result_op2  = op2 
+    elsif (operand_kind(op3) == :unkind)
+      const1      = op1
+      const_sign  = sign1
+      const2      = op2
+
+      result_op1  = cut_to_constant(const_sign, const1, const2)
+      result_sign = combined_operator_class(sign1, sign2)
+      result_op2  = op3
+    else
+      raise "One operand should be unkind type"
+    end
+
+    result_sign.new result_op1, result_op2
+  end
+
+
   #Arguments are meant to be subclasses of Formula::BinaryOperator
-  def combined_operator_class(operator1_class, operator2_class)
+  def self.combined_operator_class(operator1_class, operator2_class)
     return nil unless operator1_class.combines_with(operator2_class)
     
     com1 = operator1_class.commutative?
@@ -38,15 +83,15 @@ module FormulaCut
     end
   end
 
-  def cut_to_constant(operator_class, const1, const2)
-      if (const1.is_a?(Formula::IntConstant)&&const2.is_a?(Formula::IntConstant))
-        return Formula::IntConstant.new operator_class.operate(const1, const2)
-      else
-        return Formula::FloatConstant.new operator_class.operate(const1, const2)
-      end
+  def self.cut_to_constant(operator_class, const1, const2)
+    if (const1.is_a?(Formula::IntConstant)&&const2.is_a?(Formula::IntConstant))
+      return Formula::IntConstant.new operator_class.operate(const1, const2)
+    else
+      return Formula::FloatConstant.new operator_class.operate(const1, const2)
+    end
   end
 
-  def operand_kind(op)
+  def self.operand_kind(op)
     return :const if op.is_a?(Formula::Constant)
     if op.is_a?(Formula::BinaryOperator)
       c1 = op.operand1.is_a?(Formula::Constant)
@@ -55,5 +100,13 @@ module FormulaCut
       return :op_const if (c1 || c2)
     end
     return :unkind    
+  end
+
+  #making helper funcs private
+  class << self
+    private :cut_op_const
+    private :combined_operator_class
+    private :cut_to_constant
+    private :operand_kind
   end
 end
