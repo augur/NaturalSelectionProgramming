@@ -18,11 +18,18 @@ module FormulaCut
     if (kind_operand1 == :const && kind_operand2 == :const)
       return cut_to_constant(binary_op.class, cut_operand1, cut_operand2)
     elsif (kind_operand1 == :const && kind_operand2 == :op_const)
-      #TODO check if combines
-      return cut_op_const(cut_operand1, binary_op.class, cut_operand2.operand1,
-                          cut_operand2.class, cut_operand2.operand2, false)
+      unless combined_operator_class(binary_op.class, cut_operand2.class).nil?
+        return cut_op_const(cut_operand1, binary_op.class, cut_operand2.operand1,
+                            cut_operand2.class, cut_operand2.operand2, false)
+      end
+    elsif (kind_operand1 == :op_const && kind_operand2 == :const) 
+      unless combined_operator_class(cut_operand1.class, binary_op.class).nil?
+        return cut_op_const(cut_operand1.operand1, cut_operand1.class, cut_operand1.operand2,
+                            binary_op.class, cut_operand2, true)
+      end
+    elsif (kind_operand1 == :op_const && kind_operand2 == :op_const)
+      #TODO: hardest case, will require some replacement and recursive cut
     end
-    #still a lot to do
 
     #compound cut not applied, return what we have
     binary_op.class.new(cut_operand1, cut_operand2)

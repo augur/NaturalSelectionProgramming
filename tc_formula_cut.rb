@@ -95,7 +95,51 @@ class TestFormulaCut < Test::Unit::TestCase
     nested_op = @plus_op.new(varX, constInt4)
     op = @minus_op.new(constInt8, nested_op)
     res = FormulaCut::cut(op)
-    assert_equal("(4-x)", "#{res}")  
+    assert_equal("(4-x)", "#{res}")
+
+    #8 * (x + 4)
+    #leads to 8*x + 32 which isn't reduction at all. so not combines
+    nested_op = @plus_op.new(varX, constInt4)
+    op = @mult_op.new(constInt8, nested_op)
+    res = FormulaCut::cut(op)
+    assert_equal("(8*(x+4))", "#{res}")
+  end
+
+  def test_op_const_const
+    constInt8 = Formula::IntConstant.new 8
+    constInt2 = Formula::IntConstant.new 2
+    varX = Formula::Variable.new :x
+
+    #(8 + x) + 2
+    nested_op = @plus_op.new(constInt8, varX)
+    op = @plus_op.new(nested_op, constInt2)
+    res = FormulaCut::cut(op)
+    assert_equal("(10+x)", "#{res}") 
+
+    #(8 + x) - 2
+    nested_op = @plus_op.new(constInt8, varX)
+    op = @minus_op.new(nested_op, constInt2)
+    res = FormulaCut::cut(op)
+    assert_equal("(6+x)", "#{res}")    
+
+    #(8 - x) + 2
+    nested_op = @minus_op.new(constInt8, varX)
+    op = @plus_op.new(nested_op, constInt2)
+    res = FormulaCut::cut(op)
+    assert_equal("(10-x)", "#{res}")     
+
+    #(8 - x) - 2
+    nested_op = @minus_op.new(constInt8, varX)
+    op = @minus_op.new(nested_op, constInt2)
+    res = FormulaCut::cut(op)
+    assert_equal("(6-x)", "#{res}")
+
+    #(8 - x) / 2
+    #not combines
+    nested_op = @minus_op.new(constInt8, varX)
+    op = @div_op.new(nested_op, constInt2)
+    res = FormulaCut::cut(op)
+    assert_equal("((8-x)/2)", "#{res}")   
   end
 
   def test_combined_op
