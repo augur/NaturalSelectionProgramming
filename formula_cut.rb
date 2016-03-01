@@ -28,7 +28,7 @@ module FormulaCut
                             binary_op.class, cut_operand2, true)
       end
     elsif (kind_operand1 == :op_const && kind_operand2 == :op_const)
-      #TODO: hardest case, will require some replacement and recursive cut
+      #It's not worth to implement it. This is rare one, and still lots of cases remain uncovered
     end
 
     #compound cut not applied, return what we have

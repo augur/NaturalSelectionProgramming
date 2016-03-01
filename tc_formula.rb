@@ -92,7 +92,7 @@ class TestFormula < Test::Unit::TestCase
     pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
          Formula::FORMULA_CLASSES_PRICE[Formula::AdditionOperator]
     assert_equal(pr, op.price)
-    #assert_equal("5.000", "#{op.cut}")
+    assert_equal("5.000", "#{op.cut}")
     assert_equal(true, op.class.commutative?)
     
     op2 = Formula::SubtractionOperator.new p1, p2
@@ -101,7 +101,7 @@ class TestFormula < Test::Unit::TestCase
     pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
          Formula::FORMULA_CLASSES_PRICE[Formula::SubtractionOperator]
     assert_equal(pr, op2.price)
-    #assert_equal("1.000", "#{op2.cut}")
+    assert_equal("1.000", "#{op2.cut}")
     assert_equal(false, op2.class.commutative?)
     assert_equal(Formula::AdditionOperator, op2.class.inverse_operator)
 
@@ -111,7 +111,7 @@ class TestFormula < Test::Unit::TestCase
     pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
          Formula::FORMULA_CLASSES_PRICE[Formula::MultiplicationOperator]    
     assert_equal(pr, op3.price)
-    #assert_equal("6.000", "#{op3.cut}")
+    assert_equal("6.000", "#{op3.cut}")
     assert_equal(true, op3.class.commutative?)
 
     op4 = Formula::DivisionOperator.new p1, p2
@@ -120,42 +120,32 @@ class TestFormula < Test::Unit::TestCase
     pr = Formula::FORMULA_CLASSES_PRICE[Formula::FloatConstant] * 2 +
          Formula::FORMULA_CLASSES_PRICE[Formula::DivisionOperator]    
     assert_equal(pr, op4.price)
-    #assert_equal("1.500", "#{op4.cut}")
+    assert_equal("1.500", "#{op4.cut}")
     assert_equal(false, op4.class.commutative?)    
   end
 
-  #should migrate to tc_formula_cut.rb  
-  def test_bop_cut_1
-    c1 = Formula::IntConstant.new 5
-    c2 = Formula::IntConstant.new 3
-    v = Formula::Variable.new :x
-    vars = {:x => 4}
-    
-    return
+  def test_bop_power
+    p1 = Formula::IntConstant.new 8
+    p2 = Formula::IntConstant.new 2
+    op = Formula::PowerOperator.new p1, p2
+    assert_equal(64, op.value)
+    assert_equal("(8**2)", "#{op}")
+    pr =  Formula::FORMULA_CLASSES_PRICE[Formula::IntConstant] * 2 +
+          Formula::FORMULA_CLASSES_PRICE[Formula::PowerOperator]
+    assert_equal(pr, op.price)
+    assert_equal("64", "#{op.cut}")
 
-    #(c1+v)+c2
-    bop1 = Formula::AdditionOperator.new(Formula::AdditionOperator.new(c1, v), c2)
-    assert_equal(12, bop1.value(vars))
-    assert_equal("((5+x)+3)", "#{bop1}")
-    assert_equal("(8+x)", "#{bop1.cut}")
-    
-    #(c1+v)-c2
-    bop2 = Formula::SubtractionOperator.new(Formula::AdditionOperator.new(c1, v), c2)
-    assert_equal(6, bop2.value(vars))
-    assert_equal("((5+x)-3)", "#{bop2}")
-    assert_equal("(2+x)", "#{bop2.cut}")    
-    
-    #(c1-v)+c2
-    bop3 = Formula::AdditionOperator.new(Formula::SubtractionOperator.new(c1, v), c2)
-    assert_equal(4, bop3.value(vars))
-    assert_equal("((5-x)+3)", "#{bop3}")
-    assert_equal("(8-x)", "#{bop3.cut}")    
+    p1 = Formula::IntConstant.new 8
+    p2 = Formula::IntConstant.new -2
+    op = Formula::PowerOperator.new p1, p2
+    assert_equal(0.015625, op.value)
 
-    #(c1-v)-c2
-    bop4 = Formula::SubtractionOperator.new(Formula::SubtractionOperator.new(c1, v), c2)
-    assert_equal(-2, bop4.value(vars))
-    assert_equal("((5-x)-3)", "#{bop4}")
-    assert_equal("(2-x)", "#{bop4.cut}")    
+    assert_raise(ArgumentError) do
+      p1 = Formula::IntConstant.new 8
+      p2 = Formula::IntConstant.new 2000
+      op = Formula::PowerOperator.new p1, p2
+      op.value
+    end
   end
 end
 

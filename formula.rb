@@ -96,7 +96,7 @@ module Formula
     end
 
     def value(variables = nil)
-      self.class.operate(@operand1, @operand2)
+      self.class.operate(@operand1, @operand2, variables)
     end
   end
 
@@ -171,28 +171,28 @@ module Formula
     end
   end
 
-  ### Refactored up to this ###
+
   class PowerOperator < BinaryOperator
-    def sign
-      '**'
+    def self.commutative?
+      false
     end
-    
-    def value
-      base = @left_value.value
-      pow = @right_value.value
-      
-      if base == 0 and pow < 0
-        return Float::INFINITY
+
+    def self.operate(op1, op2, vars = nil)
+      base = op1.value(vars)
+      pow = op2.value(vars)
+      if pow > 1024 #lets try to limit exponent power
+        raise ArgumentError.new "Power exceeds limit"
       end
-      if pow.abs > 100 #stop with too big powers
-        return Float::INFINITY
-      end
-      
       result = base ** pow
-      if result.is_a? Complex
-        return result.real
-      end
+      if result.is_a?(Integer)
         return result
+      else
+        return Float(base ** pow)
+      end
+    end
+
+    def self.combines_with(other_class)
+      false
     end
   end
 
