@@ -3,11 +3,10 @@
 
 #This could be part of formula.rb, but formed into separate file for clarity reasons.
 
-require_relative "formula"
+module BinaryOperatorCut
 
-module FormulaCut
-
-  def self.cut(binary_op)
+  def cut
+    binary_op = self #a bit clumsy assignment, step from module_function to mixin
     raise ArgumentError.new "Argument have to be Formula::BinaryOperator" unless binary_op.is_a?(Formula::BinaryOperator)
     cut_operand1 = binary_op.operand1.cut
     cut_operand2 = binary_op.operand2.cut
@@ -39,7 +38,7 @@ module FormulaCut
 
   #following code nearly copy-pasted from formula_cut_prototype.rb
   #there it is a bit less complex
-  def self.cut_op_const(op1, sign1, op2, sign2, op3, sign1_is_nested)
+  def cut_op_const(op1, sign1, op2, sign2, op3, sign1_is_nested)
     result_op1 = nil
     result_sign = nil
     result_op2 = nil
@@ -76,7 +75,7 @@ module FormulaCut
 
 
   #Arguments are meant to be subclasses of Formula::BinaryOperator
-  def self.combined_operator_class(operator1_class, operator2_class)
+  def combined_operator_class(operator1_class, operator2_class)
     return nil unless operator1_class.combines_with(operator2_class)
     
     com1 = operator1_class.commutative?
@@ -90,7 +89,7 @@ module FormulaCut
     end
   end
 
-  def self.cut_to_constant(operator_class, const1, const2)
+  def cut_to_constant(operator_class, const1, const2)
     if (const1.is_a?(Formula::IntConstant)&&const2.is_a?(Formula::IntConstant))
       return Formula::IntConstant.new operator_class.operate(const1, const2)
     else
@@ -98,7 +97,7 @@ module FormulaCut
     end
   end
 
-  def self.operand_kind(op)
+  def operand_kind(op)
     return :const if op.is_a?(Formula::Constant)
     if op.is_a?(Formula::BinaryOperator)
       c1 = op.operand1.is_a?(Formula::Constant)
@@ -107,13 +106,5 @@ module FormulaCut
       return :op_const if (c1 || c2)
     end
     return :unkind    
-  end
-
-  #making helper funcs private
-  class << self
-    private :cut_op_const
-    private :combined_operator_class
-    private :cut_to_constant
-    private :operand_kind
   end
 end

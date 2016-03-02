@@ -1,23 +1,15 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+require_relative "formula"
 require_relative "formula_cut"
 require "test/unit"
 
 
-#Expose module methods for unit testing
-module FormulaCut
-  class << self
-    public :cut_op_const
-    public :combined_operator_class
-    public :cut_to_constant
-    public :operand_kind
-  end
-end
-
-
 class TestFormulaCut < Test::Unit::TestCase
+  include BinaryOperatorCut
 
+ 
   #shorthands
   def setup
     @plus_op = Formula::AdditionOperator
@@ -27,21 +19,23 @@ class TestFormulaCut < Test::Unit::TestCase
     @pow_op = Formula::PowerOperator
 
     @combo = Proc.new do |op1, op2|
-      FormulaCut::combined_operator_class(op1, op2)
+      combined_operator_class(op1, op2)
     end
 
     @cutc = Proc.new do |op, c1, c2|
-      FormulaCut::cut_to_constant(op, c1, c2)
+      cut_to_constant(op, c1, c2)
     end
 
     @kind = Proc.new do |op|
-      FormulaCut::operand_kind(op)
+      operand_kind(op)
     end
   end
 
   def test_cut_raise
     assert_raise(ArgumentError) do
-      FormulaCut::cut(Formula::IntConstant.new 42)
+      c42 = Formula::IntConstant.new 42
+      c42.extend(BinaryOperatorCut)
+      c42.cut
     end
   end
 
@@ -50,7 +44,7 @@ class TestFormulaCut < Test::Unit::TestCase
     constInt4 = Formula::IntConstant.new 4
     op = @plus_op.new(constInt8, constInt4)
 
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert(res.is_a?(Formula::Constant))
     assert_equal(12, res.value)
     assert_equal("12", "#{res}")
@@ -64,44 +58,44 @@ class TestFormulaCut < Test::Unit::TestCase
     #8 + (4 + x)
     nested_op = @plus_op.new(constInt4, varX)
     op = @plus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(12+x)", "#{res}")
 
     #8 + (4 - x)
     nested_op = @minus_op.new(constInt4, varX)
     op = @plus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(12-x)", "#{res}")
 
     #8 - (4 - x)
     nested_op = @minus_op.new(constInt4, varX)
     op = @minus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(4+x)", "#{res}")
 
     #8 + (x - 4)
     nested_op = @minus_op.new(varX, constInt4)
     op = @plus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(4+x)", "#{res}")
 
     #8 - (x - 4)
     nested_op = @minus_op.new(varX, constInt4)
     op = @minus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(12-x)", "#{res}")
 
     #8 - (x + 4)
     nested_op = @plus_op.new(varX, constInt4)
     op = @minus_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(4-x)", "#{res}")
 
     #8 * (x + 4)
     #leads to 8*x + 32 which isn't reduction at all. so not combines
     nested_op = @plus_op.new(varX, constInt4)
     op = @mult_op.new(constInt8, nested_op)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(8*(x+4))", "#{res}")
   end
 
@@ -113,32 +107,32 @@ class TestFormulaCut < Test::Unit::TestCase
     #(8 + x) + 2
     nested_op = @plus_op.new(constInt8, varX)
     op = @plus_op.new(nested_op, constInt2)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(10+x)", "#{res}") 
 
     #(8 + x) - 2
     nested_op = @plus_op.new(constInt8, varX)
     op = @minus_op.new(nested_op, constInt2)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(6+x)", "#{res}")    
 
     #(8 - x) + 2
     nested_op = @minus_op.new(constInt8, varX)
     op = @plus_op.new(nested_op, constInt2)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(10-x)", "#{res}")     
 
     #(8 - x) - 2
     nested_op = @minus_op.new(constInt8, varX)
     op = @minus_op.new(nested_op, constInt2)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("(6-x)", "#{res}")
 
     #(8 - x) / 2
     #not combines
     nested_op = @minus_op.new(constInt8, varX)
     op = @div_op.new(nested_op, constInt2)
-    res = FormulaCut::cut(op)
+    res = op.cut
     assert_equal("((8-x)/2)", "#{res}")   
   end
 

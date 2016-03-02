@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative 'formula_cut'
+require_relative 'formula_cut.rb'
 
 module Formula
   #Abstract base class. Don't try to create it.
@@ -72,6 +72,8 @@ module Formula
    
 
   class BinaryOperator < Formula
+    include BinaryOperatorCut
+
     attr_reader :operand1
     attr_reader :operand2
     
@@ -81,10 +83,6 @@ module Formula
       operand1.is_a?(Formula) && operand2.is_a?(Formula)
       @operand1 = operand1
       @operand2 = operand2
-    end
-
-    def cut
-      FormulaCut::cut(self)
     end
 
     def price
