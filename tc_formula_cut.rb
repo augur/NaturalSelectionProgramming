@@ -19,15 +19,15 @@ class TestFormulaCut < Test::Unit::TestCase
     @pow_op = Formula::PowerOperator
 
     @combo = Proc.new do |op1, op2|
-      combined_operator_class(op1, op2)
+      BinaryOperatorCut::combined_operator_class(op1, op2)
     end
 
     @cutc = Proc.new do |op, c1, c2|
-      cut_to_constant(op, c1, c2)
+      BinaryOperatorCut::cut_to_constant(op, c1, c2)
     end
 
     @kind = Proc.new do |op|
-      operand_kind(op)
+      BinaryOperatorCut::operand_kind(op)
     end
   end
 
