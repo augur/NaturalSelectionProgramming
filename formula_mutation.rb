@@ -3,12 +3,129 @@
 
 module FormulaMutator
 
+  #Before first call of "mutate" mixin method, one should set list of possible variables
+  #mutations (array of symbols, like [:x, :y, :z])
+  def self.vars_list=(vars)
+    @vars_list = vars
+  end
+
+  def self.vars_list
+    @vars_list 
+  end
+
+  #returns new Formula, based on random mutation
+  def mutate
+    if self.is_a?(BinaryOperator)
+      return FormulaMutator::bop_mutate(self) 
+    else
+      return FormulaMutator::random_mutation(self)
+    end
+  end
+
+  def self.bop_mutate(f)
+    case BOP_ACTION.sample
+    when :left
+      return f.class.new(f.operand1.mutate, f.operand2)
+    when :right
+      return f.class.new(f.operand1, f.operand2.mutate)
+    when :self
+      return random_mutation(f)
+    else
+      raise "Unreachable case"
+    end
+  end
+
+  def self.random_mutation(f)
+    case ACTIONS.sample
+    when :grow
+      return grow(f)
+    when :shrink
+      return shrink(f)
+    when :shift
+      return shift(f)
+    else
+      raise "Unreachable case"
+    end
+  end
+
+  def self.grow(f)
+    case f
+    when Formula::Constant
+      return grow_constant(f)
+    when Formula::Variable
+      return grow_variable(f)
+    when Formula::BinaryOperator
+      return grow_bop(f)
+    else
+      raise "Unreachable case"
+    end
+  end
+
+  def self.shrink(f)
+    case f
+    when Formula::Constant
+      return shrink_constant(f)
+    when Formula::Variable
+      return shrink_variable(f)
+    when Formula::BinaryOperator
+      return shrink_bop(f)
+    else
+      raise "Unreachable case"
+    end
+  end
+
+  def self.shift(f)
+    case f
+    when Formula::Constant
+      return shift_constant(f)
+    when Formula::Variable
+      return shift_variable(f)
+    when Formula::BinaryOperator
+      return shift_bop(f)
+    else
+      raise "Unreachable case"
+    end
+  end
+
+  ### "grow" methods ###
+  def self.grow_constant(c)
+  end
+
+  def self.grow_variable(v)
+  end
+
+  def self.grow_bop(bop)
+  end
+
+  ### "shrink" methods ###
+  def self.shrink_constant(c)
+  end
+
+  def self.shrink_variable(v)
+  end
+
+  def self.shrink_bop(bop)
+  end
+
+  ### "shift" methods ###
+  def self.shift_constant(c)
+  end
+
+  def self.shift_variable(v)
+  end
+
+  def self.shift_bop(bop)
+  end
+
+
+  ### Mutation Coefficients ###
+  ACTIONS = [:grow, :shrink, :shift]
+  #40% mutation affects left operand, same for right, 20% it affect operator itself
+  BOP_ACTION = [:left, :left, :right, :right, :self]
 end
 
-
-exit
 ### Refactored up to this ###
-
+=begin
 #=== Mutation Probability Constants ===
 
 #Dice rolls 0..9
@@ -213,4 +330,4 @@ def random_Float()
   rand * 4 - 2
 end
 
-
+=end

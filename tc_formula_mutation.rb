@@ -6,6 +6,9 @@ require_relative "formula_mutation"
 require "test/unit"
 
 class TestFormulaMutation < Test::Unit::TestCase
-  include FormulaMutator
 
+  def test_var_list
+    FormulaMutator::vars_list = [:x, :z]
+    assert_equal([:x, :z], FormulaMutator::vars_list)
+  end
 end
