@@ -89,6 +89,7 @@ module FormulaMutator
 
   ### "grow" methods ###
   def self.grow_constant(c)
+
   end
 
   def self.grow_variable(v)
@@ -99,29 +100,87 @@ module FormulaMutator
 
   ### "shrink" methods ###
   def self.shrink_constant(c)
+    #cannot shrink constant, shift it instead
+    shift_constant(c)
   end
 
   def self.shrink_variable(v)
+    random_constant
   end
 
   def self.shrink_bop(bop)
+    if rand > 0.5
+      bop.operand1
+    else
+      bop.operand2
+    end
   end
 
   ### "shift" methods ###
   def self.shift_constant(c)
+    case c
+    when Formula::IntConstant
+      Formula::IntConstant.new c.value + random_int
+    when Formula::FloatConstant
+      Formula::FloatConstant.new c.value + random_float
+    else
+      raise "Unreachable case"
+    end
   end
 
   def self.shift_variable(v)
+    random_variable
   end
 
   def self.shift_bop(bop)
+    #change operator type, or cut
   end
 
+  ### helper funcs ###
+
+  def self.random_bop(op1, op2)
+    [Formula::AdditionOperator,
+     Formula::SubtractionOperator,
+     Formula::MultiplicationOperator,
+     Formula::DivisionOperator,
+     Formula::PowerOperator].sample.new(op1, op2)
+  end
+
+  def self.random_operand
+    if rand > 0.5
+      random_variable
+    else
+      random_constant
+    end
+  end
+
+  def self.random_variable
+    Formula::Variable.new @vars_list.sample
+  end
+
+  def self.random_constant
+    if rand > 0.5
+      Formula::IntConstant.new random_int
+    else
+      Formula::FloatConstant.new random_float
+    end    
+  end
+
+  def self.random_int
+    [-2, -1, 1, 2].sample
+  end
+
+  # -2..2
+  def self.random_float
+    rand * 4 - 2
+  end
 
   ### Mutation Coefficients ###
   ACTIONS = [:grow, :shrink, :shift]
   #40% mutation affects left operand, same for right, 20% it affect operator itself
   BOP_ACTION = [:left, :left, :right, :right, :self]
+
+
 end
 
 ### Refactored up to this ###
