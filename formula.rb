@@ -182,10 +182,13 @@ module Formula
         raise ArgumentError.new "Power exceeds limit"
       end
       result = base ** pow
-      if result.is_a?(Integer)
+      case result
+      when Integer
         return result
+      when Complex
+        return result.real
       else
-        return Float(base ** pow)
+        return Float(result)
       end
     end
 

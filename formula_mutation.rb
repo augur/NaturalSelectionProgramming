@@ -89,13 +89,24 @@ module FormulaMutator
 
   ### "grow" methods ###
   def self.grow_constant(c)
-
+    if rand > 0.5
+      return random_variable
+    else
+      return random_bop_random_op(c)
+    end
   end
 
   def self.grow_variable(v)
+    random_bop_random_op(v)
   end
 
   def self.grow_bop(bop)
+    if rand > 0.5
+      return bop.class.new(grow(bop.operand1), bop.operand2)
+    else
+      return bop.class.new(bop.operand1, grow(bop.operand2))
+    end
+    
   end
 
   ### "shrink" methods ###
@@ -118,11 +129,20 @@ module FormulaMutator
 
   ### "shift" methods ###
   def self.shift_constant(c)
+    change_type = rand > 0.5
     case c
     when Formula::IntConstant
-      Formula::IntConstant.new c.value + random_int
+      if change_type
+        Formula::FloatConstant.new c.value
+      else
+        Formula::IntConstant.new c.value + random_int
+      end
     when Formula::FloatConstant
-      Formula::FloatConstant.new c.value + random_float
+      if change_type
+        Formula::IntConstant.new c.value
+      else
+        Formula::FloatConstant.new c.value + random_float
+      end
     else
       raise "Unreachable case"
     end
@@ -133,7 +153,16 @@ module FormulaMutator
   end
 
   def self.shift_bop(bop)
-    #change operator type, or cut
+    case BOP_SHIFT.sample
+    when :swap
+      return bop.class.new(bop.operand2, bop.operand1)
+    when :morph
+      return random_bop(bop.operand1, bop.operand2)
+    when :cut
+      return bop.cut
+    else
+      raise "Unreachable case"
+    end
   end
 
   ### helper funcs ###
@@ -144,6 +173,14 @@ module FormulaMutator
      Formula::MultiplicationOperator,
      Formula::DivisionOperator,
      Formula::PowerOperator].sample.new(op1, op2)
+  end
+
+  def self.random_bop_random_op(op)
+    if rand > 0.5
+      random_bop(op, random_operand)
+    else
+      random_bop(random_operand, op)
+    end
   end
 
   def self.random_operand
@@ -179,7 +216,8 @@ module FormulaMutator
   ACTIONS = [:grow, :shrink, :shift]
   #40% mutation affects left operand, same for right, 20% it affect operator itself
   BOP_ACTION = [:left, :left, :right, :right, :self]
-
+  #40% swapping operands, 40% change operator type, 20% reduct
+  BOP_SHIFT = [:swap, :swap, :morph, :morph, :cut]
 
 end
 
