@@ -101,12 +101,7 @@ module FormulaMutator
   end
 
   def self.grow_bop(bop)
-    if rand > 0.5
-      return bop.class.new(grow(bop.operand1), bop.operand2)
-    else
-      return bop.class.new(bop.operand1, grow(bop.operand2))
-    end
-    
+    random_bop_random_op(bop)
   end
 
   ### "shrink" methods ###

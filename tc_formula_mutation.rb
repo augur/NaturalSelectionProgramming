@@ -66,14 +66,11 @@ class TestFormulaMutation < Test::Unit::TestCase
   end
 
   def test_grow_bop
-    bop = nil
-    g = nil
     1000.times do
       bop = FormulaMutator::random_bop(FormulaMutator::random_operand, FormulaMutator::random_operand)
       g = FormulaMutator::grow_bop(bop)
       assert(bop.price < g.price)
     end
-    assert(bop.class == g.class)
   end
 
   ### test shrinks ###
