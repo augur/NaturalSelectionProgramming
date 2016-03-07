@@ -42,7 +42,7 @@ module BinaryOperatorCut
     result_op1 = nil
     result_sign = nil
     result_op2 = nil
-    if (BinaryOperatorCut::operand_kind(op1) == :unkind)
+    if (BinaryOperatorCut::operand_kind(op1) != :const)
       const1      = op2
       const_sign  = combined_operator_class(sign1, sign2)
       const2      = op3
@@ -50,7 +50,7 @@ module BinaryOperatorCut
       result_op1  = op1
       result_sign = sign1
       result_op2  = cut_to_constant(const_sign, const1, const2)
-    elsif (BinaryOperatorCut::operand_kind(op2) == :unkind)
+    elsif (BinaryOperatorCut::operand_kind(op2) != :const)
       const1      = op1
       const_sign  = sign1_is_nested ? sign2 : combined_operator_class(sign1, sign2)
       const2      = op3
@@ -58,7 +58,7 @@ module BinaryOperatorCut
       result_op1  = cut_to_constant(const_sign, const1, const2)
       result_sign = sign1
       result_op2  = op2 
-    elsif (BinaryOperatorCut::operand_kind(op3) == :unkind)
+    elsif (BinaryOperatorCut::operand_kind(op3) != :const)
       const1      = op1
       const_sign  = sign1
       const2      = op2
@@ -67,7 +67,7 @@ module BinaryOperatorCut
       result_sign = combined_operator_class(sign1, sign2)
       result_op2  = op3
     else
-      raise "One operand should be unkind type"
+      raise "One operand should non-const type"
     end
 
     result_sign.new result_op1, result_op2

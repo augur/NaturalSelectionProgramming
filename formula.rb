@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative 'formula_cut.rb'
+require_relative 'formula_cut'
+require_relative 'formula_mutation'
 
 module Formula
   #Abstract base class. Don't try to create it.
   class Formula
+    include FormulaMutator
     def initialize
       raise "Abstract class construction"
     end
