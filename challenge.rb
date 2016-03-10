@@ -18,7 +18,6 @@ module Challenge
     end
   end
 
-
   class Case
     attr_reader :input
     attr_reader :model_result
@@ -28,6 +27,19 @@ module Challenge
     def initialize(input, model_result)
       @input = input
       @model_result = model_result
+    end
+  end
+
+  class Challenger
+    attr_reader :solution
+
+    def initialize(solution)
+      raise "Abstract class construction" if self.instance_of? Challenger
+      @solution = solution
+    end
+
+    def solve_case(c)
+      #to be implemented in subclasses
     end
   end
 
@@ -45,24 +57,36 @@ module Challenge
     attr_reader :model
     attr_reader :case_group
 
-    #Abstract class. Rely on subclasses with defined score and comparison methods
+    # Abstract class. Rely on subclasses with defined score and comparison methods
     def initialize(model, case_group)
+      raise "Abstract class construction" if self.instance_of? Challenge
+      raise ArgumentError.new unless (model.is_a?(Model) &&
+                                      case_group.is_a?(Enumerable) &&
+                                      !case_group.empty?  &&
+                                      case_group.all? {|c| c.is_a?(Case)})
       @model = model
       @case_group = case_group
     end
 
     def accept(challenger)
+      scores = case_group.map do |c|
+        calc_score(challenger.solve_case(c))
+      end
+      return aggregate(scores)
     end
 
     protected
 
     def calc_score(solved_case)
+      #to be implemented in subclasses
     end
 
     def aggregate(scores)
+      #to be implemented in subclasses
     end
 
     def compare_agg_scores(agg_score1, agg_score2)
+      #to be implemented in subclasses
     end
   end
 
