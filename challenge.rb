@@ -23,6 +23,7 @@ module Challenge
     attr_reader :input
     attr_reader :model_result
     attr_accessor :challenger_result
+    attr_accessor :aux_challenger_data
 
     def initialize(input, model_result)
       @input = input
@@ -31,7 +32,38 @@ module Challenge
   end
 
 
+  def self.build_case(model, input)
+    Case.new(input, model.get_model_result(input))
+  end
+
+  def self.build_case_group(model, input_group)
+    input_group.map { |i| build_case(model, i)}
+  end
+  
+
   class Challenge
+    attr_reader :model
+    attr_reader :case_group
+
+    #Abstract class. Rely on subclasses with defined score and comparison methods
+    def initialize(model, case_group)
+      @model = model
+      @case_group = case_group
+    end
+
+    def accept(challenger)
+    end
+
+    protected
+
+    def calc_score(solved_case)
+    end
+
+    def aggregate(scores)
+    end
+
+    def compare_agg_scores(agg_score1, agg_score2)
+    end
   end
 
 end
