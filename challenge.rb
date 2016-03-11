@@ -85,7 +85,10 @@ module Challenge
       #to be implemented in subclasses
     end
 
-    def compare_agg_scores(agg_score1, agg_score2)
+    public
+
+    # returns result as <=> (spaceship) operator
+    def compare_scores(score1, score2)
       #to be implemented in subclasses
     end
   end

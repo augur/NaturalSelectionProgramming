@@ -109,6 +109,10 @@ class TestChallenge < Test::Unit::TestCase
     def aggregate(scores)
       return scores.inject(0) {|agg, s| agg + s}
     end
+
+    def compare_scores(score1, score2)
+      score1 <=> score2
+    end
   end
 
   def test_whole_module
@@ -129,5 +133,6 @@ class TestChallenge < Test::Unit::TestCase
 
     # Challenge accepted! Return aggergated challenger score
     assert_equal(estimated_score, tc.accept(tcr))
+    assert_equal(0, tc.compare_scores(estimated_score, tc.accept(tcr)))
   end
 end
