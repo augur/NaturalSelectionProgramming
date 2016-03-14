@@ -24,5 +24,32 @@ class TestChallengeFormula < Test::Unit::TestCase
     assert_equal(0, fs.diff)
   end
 
-  # TODO: FormulaChallenge
+  def test_formula_challenge
+
+    m = Challenge::Model.new {|input| input[:x] + 5}
+    ig = (0...5).map {|i| {:x => i}}
+    cg = Challenge::build_case_group(m, ig)
+
+    fce = ChallengeFormula::FormulaChallenge.new(m, cg)
+
+    o1 = Formula::Variable.new :x
+    o2 = Formula::IntConstant.new 3
+    f = Formula::AdditionOperator.new(o1, o2)
+
+    fcer = ChallengeFormula::FormulaChallenger.new f
+
+    score = fce.accept(fcer)
+    assert_equal(2, score.diff)
+    #Var + Int+ AddOp = 5 + 1 + 10 = 16
+    assert_equal(16, score.price)
+
+    fs1 = ChallengeFormula::FormulaScore.new 5, 5
+    fs2 = ChallengeFormula::FormulaScore.new 1, 1
+    fs3 = ChallengeFormula::FormulaScore.new 1, 5
+    fs4 = ChallengeFormula::FormulaScore.new 5, 1
+
+    fss = [fs1, fs2, fs3, fs4].sort {|a,b| fce.compare_scores(a, b)}
+    assert_equal([fs2, fs3, fs4, fs1], fss)
+
+  end
 end

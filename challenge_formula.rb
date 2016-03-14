@@ -28,17 +28,27 @@ module ChallengeFormula
   end
 
   class FormulaChallenge < Challenge::Challenge
+    protected
+
     #score is float number. The lesser - the better (closer to model).
     def calc_score(solved_case)
-      diff = (c.model_result - c.challenger_result).abs
-      result = FormulaScore.new(diff, c.aux_challenger_data)
+      diff = (solved_case.model_result - solved_case.challenger_result).abs
+      result = FormulaScore.new(diff, solved_case.aux_challenger_data)
       result
     end
 
+    # fails on empty scores
     def aggregate(scores)
-      #
+      total_diff = scores.inject(0) {|sum, s| sum + s.diff }
+      price = scores[0].price
+      FormulaScore.new(total_diff/scores.size, price)
     end
 
+    public
+
+    # -1 = score1 is better
+    #  0 = scores are equal
+    #  1 = score2 is better
     def compare_scores(score1, score2)
       cmp1 = score1.diff <=> score2.diff
       if (cmp1 == 0)
