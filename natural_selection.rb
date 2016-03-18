@@ -11,6 +11,7 @@ module NaturalSelection
     attr_reader :ancestor
     attr_reader :generation
     attr_reader :round
+    attr_reader :lifetime
 
     def initialize(challenger, ancestor, generation, round)
       raise ArgumentError.new unless challenger.is_a?(Challenge::Challenger)
@@ -18,6 +19,7 @@ module NaturalSelection
       @ancestor = ancestor
       @generation = generation
       @round = round
+      @lifetime = 0
     end
 
     def spawn_mutant(round)
@@ -33,17 +35,36 @@ module NaturalSelection
       @score = @challenge.accept(@challenger)
       @score
     end
+
+    def next_round()
+      @lifetime = @lifetime.succ
+      self
+    end
   end
 
   class NaturalSelection
-
     attr_reader :challenge
-    attr_reader :winners
-    attr_reader :randoms
+    attr_reader :winners_count
+    attr_reader :randoms_count
 
-    # main method
+    def initialize(challenge, winners_count, randoms_count)
+      @challenge = challenge
+      @winners_count = winners_count
+      @randoms_count = randoms_count
+    end
+
+    # main (and only?) method
     def select(strains)
-      #
+      strains.sort! {|a,b| @challenge.compare_scores(a.score(@challenge), b.score(@challenge))}
+
+      result = strains[0, winners_count]
+      left = strains[winners_count, strains.count]
+      counter = randoms_count
+      while (not(left.empty?) && counter > 0)
+        result.push(left.delete_at(rand(left.length))) #move random element from 'left' to 'result' arrays
+        counter -= 1
+      end
+      result
     end
   end
 end

@@ -30,7 +30,7 @@ class TestChallengeFormula < Test::Unit::TestCase
     ig = (0...5).map {|i| {:x => i}}
     cg = Challenge::build_case_group(m, ig)
 
-    fce = ChallengeFormula::FormulaChallenge.new(m, cg)
+    fce = ChallengeFormula::FormulaChallenge.new(cg)
 
     o1 = Formula::Variable.new :x
     o2 = Formula::IntConstant.new 3
@@ -50,6 +50,5 @@ class TestChallengeFormula < Test::Unit::TestCase
 
     fss = [fs1, fs2, fs3, fs4].sort {|a,b| fce.compare_scores(a, b)}
     assert_equal([fs2, fs3, fs4, fs1], fss)
-
   end
 end

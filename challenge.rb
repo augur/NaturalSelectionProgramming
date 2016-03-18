@@ -54,17 +54,14 @@ module Challenge
   
 
   class Challenge
-    attr_reader :model
     attr_reader :case_group
 
     # Abstract class. Rely on subclasses with defined score and comparison methods
-    def initialize(model, case_group)
+    def initialize(case_group)
       raise "Abstract class construction" if self.instance_of? Challenge
-      raise ArgumentError.new unless (model.is_a?(Model) &&
-                                      case_group.is_a?(Enumerable) &&
+      raise ArgumentError.new unless (case_group.is_a?(Enumerable) &&
                                       !case_group.empty?  &&
                                       case_group.all? {|c| c.is_a?(Case)})
-      @model = model
       @case_group = case_group
     end
 

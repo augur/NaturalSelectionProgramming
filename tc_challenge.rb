@@ -69,24 +69,19 @@ class TestChallenge < Test::Unit::TestCase
 
   def test_challenge
     assert_raise(RuntimeError) do
-      c = Challenge::Challenge.new(1, 2)
+      c = Challenge::Challenge.new(2)
     end
 
     assert_raise(ArgumentError) do
-      tc = TestChallenge.new(1, 2)
+      tc = TestChallenge.new(2)
     end
 
     m = Challenge::Model.new {|x| x + 1}
-
-    assert_raise(ArgumentError) do
-      tc = TestChallenge.new(m, 2)
-    end   
-
     ig = 1..3
     cg = Challenge.build_case_group(m, ig) 
 
     assert_nothing_raised(ArgumentError) do
-      tc = TestChallenge.new(m, cg)
+      tc = TestChallenge.new(cg)
     end
   end
 
@@ -126,7 +121,7 @@ class TestChallenge < Test::Unit::TestCase
 
     cg = Challenge::build_case_group(m, 1..10)
 
-    tc = TestChallenge.new(m, cg)
+    tc = TestChallenge.new(cg)
     assert_equal(3, tc.calc_score(c1))
 
     estimated_score = (1..10).inject(0) {|sum, i| sum + ((i+1)-(i+2)).abs + 2}
