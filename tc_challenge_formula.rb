@@ -51,4 +51,17 @@ class TestChallengeFormula < Test::Unit::TestCase
     fss = [fs1, fs2, fs3, fs4].sort {|a,b| fce.compare_scores(a, b)}
     assert_equal([fs2, fs3, fs4, fs1], fss)
   end
+
+  def test_formula_challenger_fails
+    # 2 / x
+    f = Formula::DivisionOperator.new(Formula::IntConstant.new(2), Formula::Variable.new(:x))
+
+    #whatever model
+    m = Challenge::Model.new {|input| input[:x] + 5}
+    c = Challenge::build_case(m, {:x => 0})
+    fcer = ChallengeFormula::FormulaChallenger.new f
+    
+    c = fcer.solve_case(c)
+    assert_equal(nil, c.challenger_result)
+  end
 end

@@ -11,7 +11,12 @@ module ChallengeFormula
   #@solution here is Formula
   class FormulaChallenger < Challenge::Challenger
     def solve_case(c)
-      c.challenger_result = @solution.value(c.input) 
+      begin
+        c.challenger_result = @solution.value(c.input) 
+      rescue Exception => e
+        c.challenger_result = nil
+        puts "#{@solution.to_s}, #{c.input}, #{e.message}" #debug output
+      end
       c.aux_challenger_data = @solution.price
       c
     end
@@ -32,7 +37,11 @@ module ChallengeFormula
 
     #score is float number. The lesser - the better (closer to model).
     def calc_score(solved_case)
-      diff = (solved_case.model_result - solved_case.challenger_result).abs
+      if (solved_case.challenger_result.nil?)
+        diff = Float::MAX
+      else
+        diff = (solved_case.model_result - solved_case.challenger_result).abs
+      end
       result = FormulaScore.new(diff, solved_case.aux_challenger_data)
       result
     end
