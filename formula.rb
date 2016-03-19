@@ -39,7 +39,8 @@ module Formula
     end
     
     def to_s
-      "%d" % value
+      return @to_s unless @to_s.nil?
+      @to_s = "%d" % value
     end
   end
 
@@ -51,7 +52,8 @@ module Formula
     end
     
     def to_s
-      "%.3f" % value
+      return @to_s unless @to_s.nil?
+      @to_s = "%.3f" % value
     end
   end
 
@@ -68,7 +70,8 @@ module Formula
     end
 
     def to_s
-      @name.to_s
+      return @to_s unless @to_s.nil?
+      @to_s = @name.to_s
     end
   end
    
@@ -92,7 +95,8 @@ module Formula
     end
 
     def to_s
-      "(#{@operand1}" + BINARY_OPERATORS_SIGN[self.class] + "#{@operand2})"
+      return @to_s unless @to_s.nil?
+      @to_s = "(#{@operand1}" + BINARY_OPERATORS_SIGN[self.class] + "#{@operand2})"
     end
 
     def value(variables = nil)
