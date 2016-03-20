@@ -23,7 +23,20 @@ module NaturalSelection
     end
 
     def spawn_mutant(round)
-      mutant_solution = challenger.solution.mutate
+      mutant_solution = nil
+      while (rand > 0.5)|| #50% chance
+            (mutant_solution.nil?)|| #at least 1 mutation
+            (mutant_solution.to_s == challenger.solution.to_s) #final mutation not same as original
+        begin
+          if (mutant_solution.nil?)
+            mutant_solution = challenger.solution.mutate
+          else
+            mutant_solution = mutant_solution.mutate
+          end
+        rescue
+          #foul mutation
+        end
+      end
       mutant_challenger = challenger.class.new mutant_solution
       mutant_generation = generation.succ
       return self.class.new(mutant_challenger, self, mutant_generation, round)

@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 require_relative 'challenge'
+require_relative 'formula'
 
 module DefinedFormulaModels
 
@@ -11,4 +12,6 @@ module DefinedFormulaModels
 
   INPUT_GROUP1 = (0...1000).map {|i| {:x => i}}  #non-inclusive
   CASE_GROUP1 = Challenge::build_case_group(MODEL1, INPUT_GROUP1)
+
+  BASE_FORMULA1 = Formula::Variable.new :x
 end

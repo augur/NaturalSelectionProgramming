@@ -10,6 +10,12 @@ module ChallengeFormula
 
   #@solution here is Formula
   class FormulaChallenger < Challenge::Challenger
+
+    def initialize(f)
+      raise ArgumentError.new unless f.is_a?(Formula::Formula)
+      super(f)
+    end
+
     def solve_case(c)
       begin
         c.challenger_result = @solution.value(c.input) 

@@ -63,5 +63,11 @@ class TestChallengeFormula < Test::Unit::TestCase
     
     c = fcer.solve_case(c)
     assert_equal(nil, c.challenger_result)
+
+    #definitely NOT a formula
+    notf = m
+    assert_raise(ArgumentError) do
+      fcer = ChallengeFormula::FormulaChallenger.new notf
+    end
   end
 end

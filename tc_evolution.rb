@@ -6,4 +6,8 @@ require "test/unit"
 
 class TestEvolution < Test::Unit::TestCase
 
+  def test_base_strain
+    
+  end
+
 end
