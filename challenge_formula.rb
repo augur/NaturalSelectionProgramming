@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative 'challenge'
-require_relative 'formula'
+require_relative "challenge"
+require_relative "formula"
 
 module ChallengeFormula
 
@@ -21,7 +21,7 @@ module ChallengeFormula
         c.challenger_result = @solution.value(c.input) 
       rescue Exception => e
         c.challenger_result = nil
-        puts "#{@solution.to_s}, #{c.input}, #{e.message}" #debug output
+        #puts "#{@solution.to_s}, #{c.input}, #{e.message}" #debug output
       end
       c.aux_challenger_data = @solution.price
       c
@@ -43,10 +43,11 @@ module ChallengeFormula
 
     #score is float number. The lesser - the better (closer to model).
     def calc_score(solved_case)
-      if (solved_case.challenger_result.nil?)
+      if (solved_case.challenger_result.nil?) or
+         ((solved_case.challenger_result.respond_to?(:finite?))and(!solved_case.challenger_result.finite?))
         diff = Float::MAX
       else
-        diff = (solved_case.model_result - solved_case.challenger_result).abs
+        diff = (solved_case.model_result.to_f - solved_case.challenger_result.to_f).abs
       end
       result = FormulaScore.new(diff, solved_case.aux_challenger_data)
       result
@@ -54,7 +55,7 @@ module ChallengeFormula
 
     # fails on empty scores
     def aggregate(scores)
-      total_diff = scores.inject(0) {|sum, s| sum + s.diff }
+      total_diff = (scores.inject(0) {|sum, s| sum + s.diff }).to_f
       price = scores[0].price
       FormulaScore.new(total_diff/scores.size, price)
     end

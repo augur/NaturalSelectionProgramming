@@ -24,9 +24,7 @@ module NaturalSelection
 
     def spawn_mutant(round)
       mutant_solution = nil
-      while (rand > 0.5)|| #50% chance
-            (mutant_solution.nil?)|| #at least 1 mutation
-            (mutant_solution.to_s == challenger.solution.to_s) #final mutation not same as original
+      while (mutant_solution.nil?)|| (mutant_solution.to_s == challenger.solution.to_s) do
         begin
           if (mutant_solution.nil?)
             mutant_solution = challenger.solution.mutate
@@ -34,9 +32,10 @@ module NaturalSelection
             mutant_solution = mutant_solution.mutate
           end
         rescue
-          #foul mutation
-        end
+          break #foul mutation
+        end while (rand > 0.5)
       end
+
       mutant_challenger = challenger.class.new mutant_solution
       mutant_generation = generation.succ
       return self.class.new(mutant_challenger, self, mutant_generation, round)
@@ -49,9 +48,18 @@ module NaturalSelection
       @score
     end
 
+    def last_score
+      @score
+    end
+
     def next_round()
       @lifetime = @lifetime.succ
       self
+    end
+
+    def puts_evolution_chain
+      @ancestor.puts_evolution_chain unless @ancestor.nil?
+      puts challenger.solution.to_s
     end
   end
 
@@ -68,10 +76,11 @@ module NaturalSelection
 
     # main (and only?) method
     def select(strains)
-      strains.sort! {|a,b| @challenge.compare_scores(a.score(@challenge), b.score(@challenge))}
-
+      strains.sort! do |a,b|
+        @challenge.compare_scores(a.score(@challenge), b.score(@challenge))
+      end
       result = strains[0, winners_count]
-      left = strains[winners_count, strains.count]
+      left = strains[winners_count, strains.count] || []
       counter = randoms_count
       while (not(left.empty?) && counter > 0)
         result.push(left.delete_at(rand(left.length))) #move random element from 'left' to 'result' arrays
