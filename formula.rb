@@ -184,7 +184,7 @@ module Formula
     def self.operate(op1, op2, vars = nil)
       base = op1.value(vars)
       pow = op2.value(vars)
-      if pow > 1024 #lets try to limit exponent power
+      if (pow.abs > 16) or (base.abs > 1024) #lets try to limit exponent power
         raise ArgumentError.new "Power exceeds limit"
       end
       result = base ** pow
@@ -221,6 +221,6 @@ module Formula
                             SubtractionOperator    => 10,
                             MultiplicationOperator => 15,
                             DivisionOperator       => 15,
-                            PowerOperator          => 30}
+                            PowerOperator          => 16}
 
 end

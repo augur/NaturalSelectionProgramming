@@ -33,6 +33,7 @@ class TestEvolution < Test::Unit::TestCase
     ig = (0...5).map {|i| {:x => i}}
     cg = Challenge::build_case_group(m, ig)    
 
+    FormulaMutator::vars_list = [:x]
     f = Formula::Variable.new :x
 
     fe = Evolution::FormulaEvolution.new(cg, f, 32, 1, 1)
