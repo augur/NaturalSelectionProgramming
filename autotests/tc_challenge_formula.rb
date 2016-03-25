@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative "challenge_formula"
+require_relative "../challenge_formula"
 require "test/unit"
 
 class TestChallengeFormula < Test::Unit::TestCase
