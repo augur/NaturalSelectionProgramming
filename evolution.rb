@@ -36,7 +36,7 @@ module Evolution
         #=== debug output ===
         puts "round №#{round}"
         @strains.first(10).each do |s|
-          puts "Score: #{s.last_score.diff}; Price: #{s.last_score.price}; Lifetime: #{s.lifetime}; #{s.challenger.solution}"
+          puts "Score: #{s.last_score.diff}; Price: #{s.last_score.price}; Lifetime: #{s.lifetime}"
         end
         #====================
 
