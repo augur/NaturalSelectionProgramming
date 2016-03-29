@@ -43,6 +43,14 @@ module Challenge
     end
   end
 
+  class Score
+    attr_reader :components
+
+    def initialize(*components)
+      raise "Abstract class construction" if self.instance_of? Score
+      @components = components
+    end
+  end
 
   def self.build_case(model, input)
     Case.new(input, model.get_model_result(input))

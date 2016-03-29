@@ -28,11 +28,12 @@ module ChallengeFormula
     end
   end
 
-  class FormulaScore
+  class FormulaScore < Challenge::Score
     attr_reader :diff
     attr_reader :price
 
     def initialize(diff, price)
+      super(diff, price)
       @diff = diff < RESULT_EPSILON ? 0 : diff
       @price = price
     end

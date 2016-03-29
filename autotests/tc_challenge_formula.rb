@@ -19,6 +19,7 @@ class TestChallengeFormula < Test::Unit::TestCase
     fs = ChallengeFormula::FormulaScore.new 1, 5
     assert_equal(1, fs.diff)
     assert_equal(5, fs.price)
+    assert_equal(5, fs.components[1])
 
     fs = ChallengeFormula::FormulaScore.new ChallengeFormula::RESULT_EPSILON/2, 5
     assert_equal(0, fs.diff)

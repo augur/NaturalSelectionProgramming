@@ -130,4 +130,18 @@ class TestChallenge < Test::Unit::TestCase
     assert_equal(estimated_score, tc.accept(tcr))
     assert_equal(0, tc.compare_scores(estimated_score, tc.accept(tcr)))
   end
+  
+  # non-abstract subclass for testing purposes
+  class TestScore < Challenge::Score
+  end
+
+  def test_score
+    assert_raise(RuntimeError) do
+      s = Challenge::Score.new(1)
+    end
+
+    s = TestScore.new(3, 6, 9)
+    assert_equal(6, s.components[1])
+  end
 end
+
