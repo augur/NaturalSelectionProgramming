@@ -199,12 +199,12 @@ module FormulaMutator
   end
 
   def self.random_int
-    [-2, -1, 1, 2].sample
+    [-1, -1, 0, 1, 1].sample
   end
 
-  # -2..2
+  # -0.1...0.1
   def self.random_float
-    rand * 4 - 2
+    (rand * 0.2) - 0.1
   end
 
   ### Mutation Coefficients ###

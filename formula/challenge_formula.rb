@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative "challenge"
+require_relative "../challenge"
 require_relative "formula"
 
 module ChallengeFormula
@@ -36,6 +36,10 @@ module ChallengeFormula
       super(diff, price)
       @diff = diff < RESULT_EPSILON ? 0 : diff
       @price = price
+    end
+
+    def to_s
+      "Diff: #{@diff}; Price: #{@price}"
     end
   end
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+
+
 require_relative "../natural_selection"
-require_relative "../challenge_formula"
+require_relative "../formula/challenge_formula"
 require "test/unit"
 
 class TestNaturalSelection < Test::Unit::TestCase

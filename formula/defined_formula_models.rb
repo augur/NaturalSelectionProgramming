@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative "challenge"
+require_relative "../challenge"
 require_relative "formula"
 
 module DefinedFormulaModels

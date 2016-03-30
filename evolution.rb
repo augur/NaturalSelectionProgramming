@@ -2,15 +2,23 @@
 # encoding: utf-8
 
 require_relative "natural_selection"
-require_relative "challenge_formula"
 
 module Evolution
 
   class Evolution
-    attr_reader :strains
-    attr_reader :rounds_to_win
-    attr_reader :selection
+    attr_reader :selection    
+    attr_reader :rounds_to_win    
+    
     attr_reader :base_strain
+    attr_reader :strains
+
+    def initialize(challenge, challenger, winners, randoms, rounds_to_win)
+      @selection = NaturalSelection::NaturalSelection.new(challenge, winners, randoms)
+      @rounds_to_win = rounds_to_win
+
+      @base_strain = NaturalSelection::Strain.new(challenger, nil, 0, 0)
+      @strains = [base_strain]            
+    end
 
     def run(cooldown = 0.0)
       round = 1
@@ -25,7 +33,7 @@ module Evolution
         #=== debug output ===
         puts "round №#{round}"
         @strains.first(10).each do |s|
-          puts "Score: #{s.last_score.diff}; Price: #{s.last_score.price}; Lifetime: #{s.lifetime}"
+          puts "#{s.last_score}; Generation: #{s.generation}; Lifetime: #{s.lifetime}"
         end
         #====================
 
@@ -39,22 +47,5 @@ module Evolution
     end
   end
 
-  class FormulaEvolution < Evolution
-    attr_reader :strains
-    attr_reader :rounds_to_win
-    attr_reader :selection
-    attr_reader :base_strain
 
-    def initialize(case_group, base_formula, rounds_to_win, winners, randoms)
-      challenge = ChallengeFormula::FormulaChallenge.new case_group
-      @selection = NaturalSelection::NaturalSelection.new(challenge, winners, randoms)
-
-      challenger = ChallengeFormula::FormulaChallenger.new base_formula
-      @base_strain = NaturalSelection::Strain.new(challenger, nil, 0, 0)
-      @strains = [base_strain]
-
-      @rounds_to_win = rounds_to_win
-    end
-
-  end
 end

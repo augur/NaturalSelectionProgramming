@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require_relative "../formula"
-require_relative "../formula_cut"
+require_relative "../formula/formula"
+require_relative "../formula/formula_cut"
 require "test/unit"
 
 
