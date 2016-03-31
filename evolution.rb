@@ -42,7 +42,8 @@ module Evolution
         sleep cooldown
       end while !complete
       @strains[0].puts_evolution_chain
-      puts "Winner: #{@strains[0].challenger.solution.to_s}"
+      puts "Round №#{round}, Winner: #{@strains[0].challenger.solution.to_s}"
+      puts "#{@strains[0].last_score}; Generation: #{@strains[0].generation}; Lifetime: #{@strains[0].lifetime}"
       @strains[0]
     end
   end

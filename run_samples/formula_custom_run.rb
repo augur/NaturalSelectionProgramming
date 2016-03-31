@@ -4,6 +4,7 @@
 require_relative "../formula/defined_formula_models"
 require_relative "../formula/challenge_formula"
 require_relative "../formula/evolution_formula"
+require_relative "../formula/formula_mutation"
 
 unless ARGV.size == 5
   puts "Usage: ruby formula_custom_run.rb <predefined_model_number> <winners> <randoms> <rounds_to_win> <epsilon>"
@@ -12,6 +13,9 @@ end
 
 case_group = DefinedFormulaModels.const_get("CASE_GROUP"+ARGV[0].to_s)
 base_formula = DefinedFormulaModels.const_get("BASE_FORMULA"+ARGV[0].to_s)
+
+#Should it exist or not?
+FormulaMutator::vars_list = DefinedFormulaModels.const_get("VARS_LIST"+ARGV[0].to_s)
 
 winners = ARGV[1].to_i
 randoms = ARGV[2].to_i
