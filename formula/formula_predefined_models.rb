@@ -4,7 +4,7 @@
 require_relative "../challenge"
 require_relative "formula"
 
-module DefinedFormulaModels
+module FormulaPredefinedModels
 
   # First model describes simple polynom, and should be solved easily
   # x^2 - 8*x + 2.5

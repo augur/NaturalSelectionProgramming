@@ -6,7 +6,7 @@
 
 require_relative "../evolution"
 require_relative "../challenge"
-require_relative "../formula/evolution_formula"
+require_relative "../formula/formula_evolution"
 
 require "test/unit"
 
@@ -20,15 +20,15 @@ class TestEvolution < Test::Unit::TestCase
     f = Formula::Variable.new :x
 
     assert_raise(ArgumentError) do
-      EvolutionFormula::FormulaEvolution.new(0, f, 1, 1, 1)
+      FormulaEvolution::FormulaEvolution.new(0, f, 1, 1, 1)
     end
 
     assert_raise(ArgumentError) do
-      EvolutionFormula::FormulaEvolution.new(cg, 0, 1, 1, 1)
+      FormulaEvolution::FormulaEvolution.new(cg, 0, 1, 1, 1)
     end
 
     assert_nothing_raised do
-      EvolutionFormula::FormulaEvolution.new(cg, f, 1, 1, 1)
+      FormulaEvolution::FormulaEvolution.new(cg, f, 1, 1, 1)
     end
   end
 
@@ -40,7 +40,7 @@ class TestEvolution < Test::Unit::TestCase
     FormulaMutator::vars_list = [:x]
     f = Formula::Variable.new :x
 
-    fe = EvolutionFormula::FormulaEvolution.new(cg, f, 32, 1, 1)
+    fe = FormulaEvolution::FormulaEvolution.new(cg, f, 32, 1, 1)
     win = fe.run
     assert(win.last_score.diff < 5)
     assert(win.generation > 0)

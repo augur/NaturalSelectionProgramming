@@ -2,10 +2,10 @@
 # encoding: utf-8
 
 require_relative "../formula/formula"
-require_relative "../formula/formula_mutation"
+require_relative "../formula/formula_mutator"
 require "test/unit"
 
-class TestFormulaMutation < Test::Unit::TestCase
+class TestFormulaMutator < Test::Unit::TestCase
 
   def setup
     FormulaMutator::vars_list = [:x, :y, :z]

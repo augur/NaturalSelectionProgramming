@@ -2,14 +2,14 @@
 # encoding: utf-8
 
 require_relative "../evolution"
-require_relative "challenge_formula"
+require_relative "formula_challenge"
 
-module EvolutionFormula
+module FormulaEvolution
   class FormulaEvolution < Evolution::Evolution
 
     def initialize(case_group, base_formula, rounds_to_win, winners, randoms)
-      challenge = ChallengeFormula::FormulaChallenge.new case_group
-      challenger = ChallengeFormula::FormulaChallenger.new base_formula
+      challenge = FormulaChallenge::FormulaChallenge.new case_group
+      challenger = FormulaChallenge::FormulaChallenger.new base_formula
 
       super(challenge, challenger, winners, randoms, rounds_to_win)
     end

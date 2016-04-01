@@ -4,7 +4,7 @@
 require_relative "../challenge"
 require_relative "formula"
 
-module ChallengeFormula
+module FormulaChallenge
 
   RESULT_EPSILON = 0.001
 

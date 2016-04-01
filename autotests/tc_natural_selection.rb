@@ -4,7 +4,7 @@
 
 
 require_relative "../natural_selection"
-require_relative "../formula/challenge_formula"
+require_relative "../formula/formula_challenge"
 require "test/unit"
 
 class TestNaturalSelection < Test::Unit::TestCase
@@ -14,7 +14,7 @@ class TestNaturalSelection < Test::Unit::TestCase
   end
 
   def test_strain
-    fc = ChallengeFormula::FormulaChallenger.new Formula::IntConstant.new 34
+    fc = FormulaChallenge::FormulaChallenger.new Formula::IntConstant.new 34
 
     s = NaturalSelection::Strain.new(fc, nil, 1, 42)
     assert_equal(fc, s.challenger)
@@ -33,15 +33,15 @@ class TestNaturalSelection < Test::Unit::TestCase
     m = Challenge::Model.new {|input| input[:x] + 5}
     ig = (0...5).map {|i| {:x => i}}
     cg = Challenge::build_case_group(m, ig)
-    fce = ChallengeFormula::FormulaChallenge.new(cg)    
+    fce = FormulaChallenge::FormulaChallenge.new(cg)    
 
     assert_equal(27, s.score(fce).diff)
   end
 
   def test_natural_selection
-    fc5 = ChallengeFormula::FormulaChallenger.new Formula::IntConstant.new 5
-    fc6 = ChallengeFormula::FormulaChallenger.new Formula::IntConstant.new 6
-    fc7 = ChallengeFormula::FormulaChallenger.new Formula::IntConstant.new 7
+    fc5 = FormulaChallenge::FormulaChallenger.new Formula::IntConstant.new 5
+    fc6 = FormulaChallenge::FormulaChallenger.new Formula::IntConstant.new 6
+    fc7 = FormulaChallenge::FormulaChallenger.new Formula::IntConstant.new 7
 
     s5 = NaturalSelection::Strain.new(fc5, nil, 1, 1)
     s6 = NaturalSelection::Strain.new(fc6, nil, 1, 1)
@@ -50,7 +50,7 @@ class TestNaturalSelection < Test::Unit::TestCase
     m = Challenge::Model.new {|input| 10}
     ig = (0...5).map {|i| {:x => i}}
     cg = Challenge::build_case_group(m, ig)
-    fce = ChallengeFormula::FormulaChallenge.new(cg)
+    fce = FormulaChallenge::FormulaChallenge.new(cg)
 
     ns = NaturalSelection::NaturalSelection.new(fce, 1, 1)
     assert_equal(fce, ns.challenge)
