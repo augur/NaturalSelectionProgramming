@@ -33,11 +33,6 @@ module SortingVM
     end
 
     ### utilities for instructions ###
-
-    def rewrite_memory(memory)
-      @memory = memory
-    end
-
     def swap_elements(i1, i2)
       result[i1], result[i2] = result[i2], result[i1]
     end

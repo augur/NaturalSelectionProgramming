@@ -19,11 +19,6 @@ class TestSortingVM < Test::Unit::TestCase
     assert_equal(10, @svm.operation_limit)
   end
 
-  def test_rewrite_memory
-    @svm.rewrite_memory({:i => 3})
-    assert_equal({:i => 3}, @svm.memory)
-  end
-
   def test_swap_elements
     @svm.run([])
     @svm.swap_elements(1,2)
