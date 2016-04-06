@@ -27,9 +27,11 @@ module SortingVM
       @memory = {}
       @result = @target.map {|e| e}
       #run
+      last = nil
       code.each do |e|
-        e.execute(self)
+        last = e.execute(self)
       end
+      last
     end
 
     ### utilities for instructions ###
