@@ -33,6 +33,11 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(42, @svm.run([c]))
     assert_equal("42", "#{c}")
     assert_equal(1, @svm.counter)
+
+    c = Expression::Const.new(false)
+    assert_equal(false, @svm.run([c]))
+    assert_equal("false", "#{c}")
+    assert_equal(1, @svm.counter)
   end
 
   def test_var

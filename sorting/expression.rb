@@ -3,6 +3,14 @@
 
 require_relative 'sorting_vm'
 
+
+
+#Quick hack: adds positive response on true.is_a?(Boolean) and 
+#false.is_a?(Boolean) calls
+module Boolean; end
+class TrueClass; include Boolean; end
+class FalseClass; include Boolean; end
+
 module Expression
 
   #base abstract class
@@ -12,12 +20,12 @@ module Expression
 
   
   ### Primitives ###
-  # NONE
+  # NIL
   # CONST
   # VAR
   # ASSIGN
 
-  #Empty Expression, NONE
+  #Empty Expression, NIL
   class Epsilon < Expression
     def execute(vm)
       nil
@@ -28,12 +36,12 @@ module Expression
     end
   end
 
-  # just a CONST
+  # just a CONST (either int or boolean)
   class Const < Expression
     attr_reader :value
 
     def initialize(value)
-      raise ArgumentError.new unless value.is_a?(Integer)
+      raise ArgumentError.new unless value.is_a?(Integer) or value.is_a?(Boolean)
       @value = value
     end
 
@@ -90,12 +98,12 @@ module Expression
   ### Sequences ###
   # BLOCK
 
-  class Block < Expression
+  class Block
     attr_reader :expressions
 
     def initialize(*expressions)
       expressions.each do |e|
-        raise ArgumentError.new unless e.is_a?(Expression)
+        raise ArgumentError.new unless e.is_a?(Expression) or e.is_a?(Block)
       end
       @expressions = expressions
     end
