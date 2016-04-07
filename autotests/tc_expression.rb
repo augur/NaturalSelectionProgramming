@@ -83,8 +83,61 @@ class TestExpression < Test::Unit::TestCase
       b = Expression::Block.new("not a expr")
     end
     b = Expression::Block.new(ax, ay)
-    assert_equal(10, @svm.run([b]))
-    assert_equal("x = 5; y = 10", "#{b}")
+    assert_equal(nil, @svm.run([b]))
+    assert_equal("x = 5\ny = 10", "#{b}")
     assert_equal(6, @svm.counter)
+    
+    b.indent = 2
+    assert_equal("  x = 5\n  y = 10", "#{b}")
   end
+
+  # x = true
+  # while (x) do
+  #   x = false
+  # end
+  def test_loop
+    x = Expression::Var.new(:x)
+    t = Expression::Const.new(true)
+    f = Expression::Const.new(false)
+    at = Expression::Assign.new(x,t)
+    af = Expression::Assign.new(x,f)
+    lb = Expression::Block.new(af)
+    l = Expression::Loop.new(x, lb)
+    all = Expression::Block.new(at, l)
+
+    @svm.run([all])
+    assert_equal(false, @svm.memory[:x])
+    assert_equal("x = true\nwhile (x) do\n  x = false\nend", "#{all}")
+    assert_equal(8, @svm.counter)
+  end
+
+  # while (x) do
+  #   while (x) do
+  #     x = x
+  #   end
+  # end    
+  def test_nested_indent
+    x = Expression::Var.new(:x)
+    a = Expression::Assign.new(x,x)
+    nb = Expression::Block.new(a)
+    nl = Expression::Loop.new(x, nb)
+    b = Expression::Block.new(nl)
+    l = Expression::Loop.new(x, b)
+    str = "while (x) do\n"+
+          "  while (x) do\n"+
+          "    x = x\n"+
+          "  end\n"+
+          "end"
+    assert_equal(str, "#{l}")
+  end
+
+  def test_infinte_loop
+    t = Expression::Const.new(true)
+    b = Expression::Block.new(t)
+    l = Expression::Loop.new(t, b)
+    assert_equal("while (true) do\n  true\nend", "#{l}")
+    assert_raise (SortingVM::OperationLimitError) do
+      @svm.run([l])
+    end
+  end 
 end

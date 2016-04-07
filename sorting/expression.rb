@@ -95,47 +95,67 @@ module Expression
     end
   end
 
+  class CommandStruct
+    attr_accessor :indent
+  end
+
   ### Sequences ###
   # BLOCK
 
-  class Block
+  class Block < CommandStruct
     attr_reader :expressions
 
     def initialize(*expressions)
       expressions.each do |e|
-        raise ArgumentError.new unless e.is_a?(Expression) or e.is_a?(Block)
+        raise ArgumentError.new unless e.is_a?(Expression) or e.is_a?(CommandStruct)
       end
       @expressions = expressions
+      @indent = 0
     end
 
     def execute(vm)
-      last = nil
       @expressions.each do |e|
         last = e.execute(vm)
       end
-      last
+      nil
     end
 
     def to_s
-      @expressions.join("; ")
+      str_indent = " " * @indent
+      (@expressions.map do |e|
+        e.indent = @indent if e.is_a?(CommandStruct) 
+        str_indent + e.to_s
+       end).join("\n")
     end
   end
 
   #TODO from here
 
-  class Loop < Expression
+  class Loop < CommandStruct
     attr_reader :condition
     attr_reader :block
 
     def initialize(cond, block)
+      raise ArgumentError.new unless cond.is_a?(Expression) and block.is_a?(Block)
       @condition = cond
       @block = block
+      self.indent = 0
+    end
+
+    def indent=(i)
+      @indent = i
+      @block.indent = i + 2
     end
 
     def execute(vm)
       while (@condition.execute(vm)) do
         @block.execute(vm)
       end
+    end
+
+    def to_s
+      str_indent = " " * @indent 
+      "while (#{@condition}) do\n#{@block}\n#{str_indent}end"
     end
   end
 
