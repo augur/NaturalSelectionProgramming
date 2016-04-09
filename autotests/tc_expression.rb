@@ -70,6 +70,48 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(3, @svm.counter)
   end
 
+  def test_equal
+    x = Expression::Var.new(:x)
+    n = Expression::Epsilon.new
+    f = Expression::Const.new(false)
+    e = Expression::Equal.new(x, n)
+    assert_equal(true, @svm.run([e]))
+    e = Expression::Equal.new(x, f)
+    assert_equal(false, @svm.run([e]))
+    assert_equal("x == false", "#{e}")
+  end
+
+  def test_nequal
+    x = Expression::Var.new(:x)
+    n = Expression::Epsilon.new
+    f = Expression::Const.new(false)
+    e = Expression::Nequal.new(x, n)
+    assert_equal(false, @svm.run([e]))
+    e = Expression::Nequal.new(x, f)
+    assert_equal(true, @svm.run([e]))
+    assert_equal("x != false", "#{e}")
+  end
+
+  def test_bigger
+    c5 = Expression::Const.new(5)
+    c2 = Expression::Const.new(2)
+    b = Expression::Bigger.new(c5, c2)
+    assert_equal(true, @svm.run([b]))
+    b = Expression::Bigger.new(c2, c5)
+    assert_equal(false, @svm.run([b]))
+    assert_equal("2 > 5", "#{b}")
+  end
+
+  def test_lesser
+    c5 = Expression::Const.new(5)
+    c2 = Expression::Const.new(2)
+    l = Expression::Lesser.new(c5, c2)
+    assert_equal(false, @svm.run([l]))
+    l = Expression::Lesser.new(c2, c5)
+    assert_equal(true, @svm.run([l]))
+    assert_equal("2 < 5", "#{l}")
+  end
+
   def test_block
     x = Expression::Var.new(:x)
     y = Expression::Var.new(:y)

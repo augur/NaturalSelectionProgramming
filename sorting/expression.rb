@@ -3,8 +3,6 @@
 
 require_relative 'sorting_vm'
 
-
-
 #Quick hack: adds positive response on true.is_a?(Boolean) and 
 #false.is_a?(Boolean) calls
 module Boolean; end
@@ -17,13 +15,13 @@ module Expression
   class Expression
     #TODO raise on init
   end
-
   
   ### Primitives ###
   # NIL
   # CONST
   # VAR
   # ASSIGN
+  # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
 
   #Empty Expression, NIL
   class Epsilon < Expression
@@ -95,6 +93,70 @@ module Expression
     end
   end
 
+  #Abstract
+  class Comparison < Expression
+    attr_reader :left
+    attr_reader :right
+
+    def initialize(left, right)
+      raise ArgumentError.new unless left.is_a?(Expression) and
+                                     right.is_a?(Expression)
+      #TODO raise abstract construction
+      @left = left
+      @right = right
+    end
+
+    def to_s
+      "#{@left} "+sign+" #{@right}"
+    end
+  end
+
+  class Equal < Comparison
+    def sign
+      "=="
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      @left.execute(vm) == @right.execute(vm)
+    end
+  end
+
+  class Nequal < Comparison
+    def sign
+      "!="
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      @left.execute(vm) != @right.execute(vm)
+    end    
+  end
+
+  class Bigger < Comparison
+    def sign
+      ">"
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      @left.execute(vm) > @right.execute(vm)
+    end  
+  end
+
+  class Lesser < Comparison
+    def sign
+      "<"
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      @left.execute(vm) < @right.execute(vm)
+    end      
+  end
+
+  ##########################
+
   class CommandStruct
     attr_accessor :indent
   end
@@ -129,7 +191,10 @@ module Expression
     end
   end
 
-  #TODO from here
+  ### Loops ###
+  # Loop
+  # Upto
+  # Downto
 
   class Loop < CommandStruct
     attr_reader :condition
