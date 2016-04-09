@@ -21,7 +21,7 @@ module SortingVM
       @operation_limit = limit
     end
 
-    def run(code)
+    def run(*code)
       #preparations
       @counter = 0
       @memory = {}

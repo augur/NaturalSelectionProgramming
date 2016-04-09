@@ -20,7 +20,7 @@ class TestSortingVM < Test::Unit::TestCase
   end
 
   def test_swap_elements
-    @svm.run([])
+    @svm.run()
     @svm.swap_elements(1,2)
     assert_equal(2, @svm.target[1])
     assert_equal(1, @svm.target[2])
@@ -30,13 +30,13 @@ class TestSortingVM < Test::Unit::TestCase
   end
 
   def test_inc_counter
-    @svm.run([])
+    @svm.run()
     @svm.inc_counter(3)
     assert_equal(3, @svm.counter)
   end
 
   def test_limit_error
-    @svm.run([])
+    @svm.run()
     assert_raise(SortingVM::OperationLimitError) do
       11.times { @svm.inc_counter }
     end
@@ -50,7 +50,7 @@ class TestSortingVM < Test::Unit::TestCase
   end
 
   def test_run
-    @svm.run([TestCode.new])
+    @svm.run(TestCode.new)
     assert_equal([2,0,1], @svm.result)
     assert_equal(3, @svm.counter)
   end

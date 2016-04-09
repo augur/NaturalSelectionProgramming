@@ -20,7 +20,7 @@ class TestExpression < Test::Unit::TestCase
 
   def test_epsilon
     e = Expression::Epsilon.new
-    assert_equal(nil, @svm.run([e]))
+    assert_equal(nil, @svm.run(e))
     assert_equal("nil", "#{e}")
     assert_equal(0, @svm.counter)
   end
@@ -30,12 +30,12 @@ class TestExpression < Test::Unit::TestCase
       c = Expression::Const.new("not int")
     end
     c = Expression::Const.new(42)
-    assert_equal(42, @svm.run([c]))
+    assert_equal(42, @svm.run(c))
     assert_equal("42", "#{c}")
     assert_equal(1, @svm.counter)
 
     c = Expression::Const.new(false)
-    assert_equal(false, @svm.run([c]))
+    assert_equal(false, @svm.run(c))
     assert_equal("false", "#{c}")
     assert_equal(1, @svm.counter)
   end
@@ -46,7 +46,7 @@ class TestExpression < Test::Unit::TestCase
     end
 
     v = Expression::Var.new(:x)
-    assert_equal(nil, @svm.run([v])) #uninitialized by default
+    assert_equal(nil, @svm.run(v)) #uninitialized by default
     assert_equal("x", "#{v}")
     assert_equal(1, @svm.counter)
   end
@@ -64,7 +64,7 @@ class TestExpression < Test::Unit::TestCase
     end
 
     a = Expression::Assign.new(v, c)
-    assert_equal(42, @svm.run([a]))
+    assert_equal(42, @svm.run(a))
     assert_equal(42, @svm.memory[v.name])
     assert_equal("x = 42", "#{a}")
     assert_equal(3, @svm.counter)
@@ -75,9 +75,9 @@ class TestExpression < Test::Unit::TestCase
     n = Expression::Epsilon.new
     f = Expression::Const.new(false)
     e = Expression::Equal.new(x, n)
-    assert_equal(true, @svm.run([e]))
+    assert_equal(true, @svm.run(e))
     e = Expression::Equal.new(x, f)
-    assert_equal(false, @svm.run([e]))
+    assert_equal(false, @svm.run(e))
     assert_equal("x == false", "#{e}")
   end
 
@@ -86,9 +86,9 @@ class TestExpression < Test::Unit::TestCase
     n = Expression::Epsilon.new
     f = Expression::Const.new(false)
     e = Expression::Nequal.new(x, n)
-    assert_equal(false, @svm.run([e]))
+    assert_equal(false, @svm.run(e))
     e = Expression::Nequal.new(x, f)
-    assert_equal(true, @svm.run([e]))
+    assert_equal(true, @svm.run(e))
     assert_equal("x != false", "#{e}")
   end
 
@@ -96,9 +96,9 @@ class TestExpression < Test::Unit::TestCase
     c5 = Expression::Const.new(5)
     c2 = Expression::Const.new(2)
     b = Expression::Bigger.new(c5, c2)
-    assert_equal(true, @svm.run([b]))
+    assert_equal(true, @svm.run(b))
     b = Expression::Bigger.new(c2, c5)
-    assert_equal(false, @svm.run([b]))
+    assert_equal(false, @svm.run(b))
     assert_equal("2 > 5", "#{b}")
   end
 
@@ -106,9 +106,9 @@ class TestExpression < Test::Unit::TestCase
     c5 = Expression::Const.new(5)
     c2 = Expression::Const.new(2)
     l = Expression::Lesser.new(c5, c2)
-    assert_equal(false, @svm.run([l]))
+    assert_equal(false, @svm.run(l))
     l = Expression::Lesser.new(c2, c5)
-    assert_equal(true, @svm.run([l]))
+    assert_equal(true, @svm.run(l))
     assert_equal("2 < 5", "#{l}")
   end
 
@@ -125,7 +125,7 @@ class TestExpression < Test::Unit::TestCase
       b = Expression::Block.new("not a expr")
     end
     b = Expression::Block.new(ax, ay)
-    assert_equal(nil, @svm.run([b]))
+    assert_equal(nil, @svm.run(b))
     assert_equal("x = 5\ny = 10", "#{b}")
     assert_equal(6, @svm.counter)
     
@@ -147,7 +147,7 @@ class TestExpression < Test::Unit::TestCase
     l = Expression::Loop.new(x, lb)
     all = Expression::Block.new(at, l)
 
-    @svm.run([all])
+    @svm.run(all)
     assert_equal(false, @svm.memory[:x])
     assert_equal("x = true\nwhile (x) do\n  x = false\nend", "#{all}")
     assert_equal(8, @svm.counter)
@@ -179,7 +179,7 @@ class TestExpression < Test::Unit::TestCase
     l = Expression::Loop.new(t, b)
     assert_equal("while (true) do\n  true\nend", "#{l}")
     assert_raise (SortingVM::OperationLimitError) do
-      @svm.run([l])
+      @svm.run(l)
     end
   end 
 end
