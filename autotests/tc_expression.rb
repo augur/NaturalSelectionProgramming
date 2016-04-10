@@ -40,6 +40,23 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(1, @svm.counter)
   end
 
+  def test_tsize
+    s = Expression::TSize.new
+    assert_equal(4, @svm.run(s))
+    assert_equal("result.size", "#{s}")
+  end
+
+  # x = 2
+  # result[x]
+  def test_element
+    c = Expression::Const.new(2)
+    x = Expression::Var.new(:x)
+    a = Expression::Assign.new(x, c)
+    e = Expression::Element.new(x)
+    assert_equal(8, @svm.run(a, e))
+    assert_equal("result[x]", "#{e}")
+  end
+
   def test_var
     assert_raise(ArgumentError) do 
       v = Expression::Var.new("not a symbol")

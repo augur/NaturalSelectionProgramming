@@ -19,11 +19,14 @@ module Expression
   ### Primitives ###
   # NIL
   # CONST
+  # TARGET_SIZE
+  # RESULT_ELEM
   # VAR
   # ASSIGN
   # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
 
-  #Empty Expression, NIL
+
+  #Empty Expression, NIL, doesn't increase VM counter
   class Epsilon < Expression
     def execute(vm)
       nil
@@ -53,6 +56,37 @@ module Expression
     end
   end
 
+  #Just returns size of Target\Result array
+  class TSize < Expression
+    def execute(vm)
+      vm.inc_counter
+      vm.target.size 
+    end
+
+    def to_s
+      "result.size"
+    end
+  end
+
+  #Returns result-array element at given index
+  class Element
+    attr_reader :index
+
+    def initialize(index)
+      raise ArgumentError.new unless index.is_a?(Expression)
+      @index = index
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      vm.result[@index.execute(vm)]
+    end
+
+    def to_s
+      "result[#{index}]"
+    end
+  end
+  
   #Variable in vm.memory, accessed by symbol-name
   class Var < Expression
     attr_reader :name
