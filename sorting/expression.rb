@@ -23,6 +23,8 @@ module Expression
   # RESULT_ELEM
   # VAR
   # ASSIGN
+  # SUCC
+  # PRED
   # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
 
 
@@ -69,7 +71,7 @@ module Expression
   end
 
   #Returns result-array element at given index
-  class Element
+  class Element < Expression
     attr_reader :index
 
     def initialize(index)
@@ -126,6 +128,42 @@ module Expression
       "#{@var} = #{@expr}"
     end
   end
+
+  class Succ < Expression
+    attr_reader :expr
+
+    def initialize(expr)
+      raise ArgumentError.new unless expr.is_a?(Expression)
+      @expr = expr
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      (expr.execute(vm)).succ
+    end
+
+    def to_s
+      "#{expr} + 1"
+    end
+  end
+
+  class Pred < Expression
+    attr_reader :expr
+
+    def initialize(expr)
+      raise ArgumentError.new unless expr.is_a?(Expression)
+      @expr = expr
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      (expr.execute(vm)).pred
+    end
+
+    def to_s
+      "#{expr} - 1"
+    end
+  end  
 
   #Abstract
   class Comparison < Expression
@@ -197,6 +235,7 @@ module Expression
 
   ### Sequences ###
   # BLOCK
+  # SWAP
 
   class Block < CommandStruct
     attr_reader :expressions
@@ -222,6 +261,30 @@ module Expression
         e.indent = @indent if e.is_a?(CommandStruct) 
         str_indent + e.to_s
        end).join("\n")
+    end
+  end
+
+  class Swap < Block
+    attr_reader :i1
+    attr_reader :i2
+
+    def initialize(i1, i2)
+      raise ArgumentError.new unless i1.is_a?(Expression) and i2.is_a?(Expression)
+      @i1 = i1
+      @i2 = i2
+      @indent = 0      
+    end
+
+    def execute(vm)
+      vm.inc_counter 6
+      vm.swap_elements(i1.execute(vm), i2.execute(vm))
+    end
+
+    def to_s
+      str_indent = " " * @indent
+      "i1 = #{i1}\n"+
+      str_indent+"i2 = #{i2}\n"+
+      str_indent+"result[i1], result[i2] = result[i2], result[i1]"
     end
   end
 

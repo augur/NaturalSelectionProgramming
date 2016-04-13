@@ -87,6 +87,22 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(3, @svm.counter)
   end
 
+  def test_succ
+    c = Expression::Const.new(42)
+    s = Expression::Succ.new(c)
+    assert_equal(43, @svm.run(s))
+    assert_equal(2, @svm.counter)
+    assert_equal("42 + 1", "#{s}")
+  end
+
+  def test_pred
+    c = Expression::Const.new(42)
+    s = Expression::Pred.new(c)
+    assert_equal(41, @svm.run(s))
+    assert_equal(2, @svm.counter)
+    assert_equal("42 - 1", "#{s}")
+  end  
+
   def test_equal
     x = Expression::Var.new(:x)
     n = Expression::Epsilon.new
@@ -148,6 +164,36 @@ class TestExpression < Test::Unit::TestCase
     
     b.indent = 2
     assert_equal("  x = 5\n  y = 10", "#{b}")
+  end
+
+  def test_swap
+    x = Expression::Var.new(:x)
+    y = Expression::Var.new(:y)   
+
+    cx = Expression::Const.new(1) 
+    cy = Expression::Const.new(2)
+
+    ax = Expression::Assign.new(x, cx)
+    ay = Expression::Assign.new(y, cy)    
+
+    sw = Expression::Swap.new(x, y)
+
+    b = Expression::Block.new(ax, ay, sw)
+    b.indent = 2
+
+    @svm.run(b)
+
+    assert_equal(8, @svm.result[1])
+    assert_equal(4, @svm.result[2])
+    assert_equal(14, @svm.counter)
+
+    code = "  x = 1\n"+
+    "  y = 2\n"+
+    "  i1 = x\n"+
+    "  i2 = y\n"+
+    "  result[i1], result[i2] = result[i2], result[i1]"
+
+    assert_equal(code, "#{b}")
   end
 
   # x = true
