@@ -245,4 +245,10 @@ class TestExpression < Test::Unit::TestCase
       @svm.run(l)
     end
   end 
+
+  def test_for
+    c2 = Expression::Const.new(2)
+    c5 = Expression::Const.new(5)
+    ##
+  end
 end

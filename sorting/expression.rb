@@ -11,6 +11,9 @@ class FalseClass; include Boolean; end
 
 module Expression
 
+  BASE_ITERATOR = :i
+  BASE_VARIABLE = :x
+
   #base abstract class
   class Expression
     #TODO raise on init
@@ -25,6 +28,7 @@ module Expression
   # ASSIGN
   # SUCC
   # PRED
+  # ITERATOR #TODO
   # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
 
 
@@ -318,6 +322,60 @@ module Expression
     def to_s
       str_indent = " " * @indent 
       "while (#{@condition}) do\n#{@block}\n#{str_indent}end"
+    end
+  end
+
+  class For < CommandStruct
+    attr_reader :from
+    attr_reader :to
+    attr_reader :block
+
+    def initialize(from, to, block)
+      raise ArgumentError.new unless from.is_a?(Expression) and
+                                     to.is_a?(Expression) and
+                                     block.is_a?(Block)
+      @from = from
+      @to = to
+      @block = block
+      self.indent = 0      
+    end
+
+    def indent=(i)
+      @indent = i
+      @block.indent = i + 2
+    end
+
+    def execute(vm)    
+      f = @from.execute(vm)
+      t = @to.execute(vm)
+      i = BASE_ITERATOR
+      while (vm.memory.key?(i))
+        i = i.succ
+      end
+
+      if f >= t
+        f.upto t do |itr|
+          vm.inc_counter 2
+          vm.memory[i] = itr
+          @block.execute(vm)
+        end
+      else 
+        f.downto t do |itr|
+          vm.inc_counter 2
+          vm.memory[i] = itr
+          @block.execute(vm)
+        end
+      end
+      vm.memory.delete(i)
+    end
+
+    def to_s
+      str_indent = " " * @indent 
+      itr = BASE_ITERATOR
+      @indent.times do itr = itr.succ end
+      "#{@from}.to(@to) do |#{itr}|\n"+
+      str_indent + "  #{@block}\n"+
+      str_indent + "end"
     end
   end
 
