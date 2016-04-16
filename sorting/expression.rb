@@ -3,7 +3,7 @@
 
 require_relative 'sorting_vm'
 
-#Quick hack: adds positive response on true.is_a?(Boolean) and 
+#Quick hack: adds positive response on true.is_a?(Boolean) and
 #false.is_a?(Boolean) calls
 module Boolean; end
 class TrueClass; include Boolean; end
@@ -18,17 +18,17 @@ module Expression
   class Expression
     #TODO raise on init
   end
-  
+
   ### Primitives ###
   # NIL
   # CONST
   # TARGET_SIZE
   # RESULT_ELEM
   # VAR
+  # ITERATOR
   # ASSIGN
   # SUCC
   # PRED
-  # ITERATOR #TODO
   # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
 
 
@@ -66,7 +66,7 @@ module Expression
   class TSize < Expression
     def execute(vm)
       vm.inc_counter
-      vm.target.size 
+      vm.target.size
     end
 
     def to_s
@@ -92,7 +92,7 @@ module Expression
       "result[#{index}]"
     end
   end
-  
+
   #Variable in vm.memory, accessed by symbol-name
   class Var < Expression
     attr_reader :name
@@ -103,13 +103,17 @@ module Expression
     end
 
     def execute(vm)
-      vm.inc_counter      
+      vm.inc_counter
       vm.memory[@name]
     end
 
     def to_s
       @name.to_s
     end
+  end
+
+  #Subclass because uses another range of names
+  class Iterator < Var
   end
 
   #Assignment, result of expression saved to variable
@@ -167,7 +171,7 @@ module Expression
     def to_s
       "#{expr} - 1"
     end
-  end  
+  end
 
   #Abstract
   class Comparison < Expression
@@ -206,7 +210,7 @@ module Expression
     def execute(vm)
       vm.inc_counter
       @left.execute(vm) != @right.execute(vm)
-    end    
+    end
   end
 
   class Bigger < Comparison
@@ -217,7 +221,7 @@ module Expression
     def execute(vm)
       vm.inc_counter
       @left.execute(vm) > @right.execute(vm)
-    end  
+    end
   end
 
   class Lesser < Comparison
@@ -228,7 +232,7 @@ module Expression
     def execute(vm)
       vm.inc_counter
       @left.execute(vm) < @right.execute(vm)
-    end      
+    end
   end
 
   ##########################
@@ -262,8 +266,13 @@ module Expression
     def to_s
       str_indent = " " * @indent
       (@expressions.map do |e|
-        e.indent = @indent if e.is_a?(CommandStruct) 
-        str_indent + e.to_s
+
+        if e.is_a?(CommandStruct)
+          e.indent = @indent
+          e.to_s
+        else
+          str_indent + e.to_s
+        end
        end).join("\n")
     end
   end
@@ -276,7 +285,7 @@ module Expression
       raise ArgumentError.new unless i1.is_a?(Expression) and i2.is_a?(Expression)
       @i1 = i1
       @i2 = i2
-      @indent = 0      
+      @indent = 0
     end
 
     def execute(vm)
@@ -286,7 +295,7 @@ module Expression
 
     def to_s
       str_indent = " " * @indent
-      "i1 = #{i1}\n"+
+      str_indent+"i1 = #{i1}\n"+
       str_indent+"i2 = #{i2}\n"+
       str_indent+"result[i1], result[i2] = result[i2], result[i1]"
     end
@@ -320,8 +329,8 @@ module Expression
     end
 
     def to_s
-      str_indent = " " * @indent 
-      "while (#{@condition}) do\n#{@block}\n#{str_indent}end"
+      str_indent = " " * @indent
+      "#{str_indent}while (#{@condition}) do\n#{@block}\n#{str_indent}end"
     end
   end
 
@@ -337,7 +346,7 @@ module Expression
       @from = from
       @to = to
       @block = block
-      self.indent = 0      
+      self.indent = 0
     end
 
     def indent=(i)
@@ -345,21 +354,21 @@ module Expression
       @block.indent = i + 2
     end
 
-    def execute(vm)    
+    def execute(vm)
       f = @from.execute(vm)
       t = @to.execute(vm)
       i = BASE_ITERATOR
-      while (vm.memory.key?(i))
+      while (not vm.memory[i].nil?)
         i = i.succ
       end
 
-      if f >= t
+      if f <= t
         f.upto t do |itr|
           vm.inc_counter 2
           vm.memory[i] = itr
           @block.execute(vm)
         end
-      else 
+      else
         f.downto t do |itr|
           vm.inc_counter 2
           vm.memory[i] = itr
@@ -370,11 +379,11 @@ module Expression
     end
 
     def to_s
-      str_indent = " " * @indent 
+      str_indent = " " * @indent
       itr = BASE_ITERATOR
-      @indent.times do itr = itr.succ end
-      "#{@from}.to(@to) do |#{itr}|\n"+
-      str_indent + "  #{@block}\n"+
+      (@indent/2).times do itr = itr.succ end
+      str_indent + "#{@from}.to(#{@to}) do |#{itr}|\n"+
+      "#{@block}\n"+
       str_indent + "end"
     end
   end
