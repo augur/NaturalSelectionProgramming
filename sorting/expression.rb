@@ -239,6 +239,11 @@ module Expression
 
   class CommandStruct
     attr_accessor :indent
+
+    def indent=(i)
+      @indent = i
+      @blocks.each {|b| b.indent = i + 2} unless @blocks.nil?
+    end    
   end
 
   ### Sequences ###
@@ -303,8 +308,7 @@ module Expression
 
   ### Loops ###
   # Loop
-  # Upto
-  # Downto
+  # For (Upto/Downto)
 
   class Loop < CommandStruct
     attr_reader :condition
@@ -314,12 +318,9 @@ module Expression
       raise ArgumentError.new unless cond.is_a?(Expression) and block.is_a?(Block)
       @condition = cond
       @block = block
-      self.indent = 0
-    end
 
-    def indent=(i)
-      @indent = i
-      @block.indent = i + 2
+      @blocks = [@block]
+      self.indent = 0
     end
 
     def execute(vm)
@@ -346,12 +347,9 @@ module Expression
       @from = from
       @to = to
       @block = block
-      self.indent = 0
-    end
 
-    def indent=(i)
-      @indent = i
-      @block.indent = i + 2
+      @blocks = [@block]
+      self.indent = 0
     end
 
     def execute(vm)
@@ -384,6 +382,46 @@ module Expression
       (@indent/2).times do itr = itr.succ end
       str_indent + "#{@from}.to(#{@to}) do |#{itr}|\n"+
       "#{@block}\n"+
+      str_indent + "end"
+    end
+  end
+
+  ### Conditionals ###
+  # IF
+
+  class If < CommandStruct
+    attr_reader :condition
+    attr_reader :then_block
+    attr_reader :else_block
+
+    def initialize(cond, t_block, e_block)
+      raise ArgumentError.new unless cond.is_a?(Expression) and
+                                     t_block.is_a?(Block) and
+                                     e_block.is_a?(Block)
+      @condition = cond
+      @then_block = t_block
+      @else_block = e_block
+
+      @blocks = [@then_block, @else_block]
+      self.indent = 0      
+    end
+
+    def execute(vm)
+      c = @condition.execute(vm)
+      vm.inc_counter
+      if (c) 
+        @then_block.execute(vm)
+      else
+        @else_block.execute(vm)
+      end
+    end
+
+    def to_s
+      str_indent = " " * @indent
+      str_indent + "if #{@condition}\n"+
+      "#{@then_block}\n"+
+      str_indent + "else\n"+
+      "#{@else_block}\n"+
       str_indent + "end"
     end
   end

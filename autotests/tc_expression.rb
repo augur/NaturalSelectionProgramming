@@ -299,4 +299,31 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(str, "#{ofor}")
     assert_equal(50, @svm.counter)
   end
+
+  def test_if
+    ct = Expression::Const.new(true)
+    cf = Expression::Const.new(false)
+    x = Expression::Var.new(:x)
+    at = Expression::Assign.new(x, ct)
+    af = Expression::Assign.new(x, cf)
+    bt = Expression::Block.new(at)
+    bf = Expression::Block.new(af)
+    _if = Expression::If.new(ct, bt, bf)
+    @svm.run(_if)
+
+    assert_equal(true, @svm.memory[:x])
+
+    _if = Expression::If.new(cf, bt, bf)
+    @svm.run(_if)
+
+    assert_equal(false, @svm.memory[:x])
+
+    str =
+    "if false\n"\
+    "  x = true\n"\
+    "else\n"\
+    "  x = false\n"\
+    "end"
+    assert_equal(str, "#{_if}")
+  end
 end
