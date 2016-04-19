@@ -16,7 +16,7 @@ class TestExpression < Test::Unit::TestCase
 
   def teardown
     @svm = nil
-  end  
+  end
 
   def test_epsilon
     e = Expression::Epsilon.new
@@ -26,7 +26,7 @@ class TestExpression < Test::Unit::TestCase
   end
 
   def test_const
-    assert_raise(ArgumentError) do 
+    assert_raise(ArgumentError) do
       c = Expression::Const.new("not int")
     end
     c = Expression::Const.new(42)
@@ -58,7 +58,7 @@ class TestExpression < Test::Unit::TestCase
   end
 
   def test_var
-    assert_raise(ArgumentError) do 
+    assert_raise(ArgumentError) do
       v = Expression::Var.new("not a symbol")
     end
 
@@ -101,7 +101,7 @@ class TestExpression < Test::Unit::TestCase
     assert_equal(41, @svm.run(s))
     assert_equal(2, @svm.counter)
     assert_equal("42 - 1", "#{s}")
-  end  
+  end
 
   def test_equal
     x = Expression::Var.new(:x)
@@ -148,33 +148,33 @@ class TestExpression < Test::Unit::TestCase
   def test_block
     x = Expression::Var.new(:x)
     y = Expression::Var.new(:y)
-    cx = Expression::Const.new(5) 
+    cx = Expression::Const.new(5)
     cy = Expression::Const.new(10)
 
     ax = Expression::Assign.new(x, cx)
     ay = Expression::Assign.new(y, cy)
 
-    assert_raise(ArgumentError) do  
+    assert_raise(ArgumentError) do
       b = Expression::Block.new("not a expr")
     end
     b = Expression::Block.new(ax, ay)
     assert_equal(nil, @svm.run(b))
     assert_equal("x = 5\ny = 10", "#{b}")
     assert_equal(6, @svm.counter)
-    
+
     b.indent = 2
     assert_equal("  x = 5\n  y = 10", "#{b}")
   end
 
   def test_swap
     x = Expression::Var.new(:x)
-    y = Expression::Var.new(:y)   
+    y = Expression::Var.new(:y)
 
-    cx = Expression::Const.new(1) 
+    cx = Expression::Const.new(1)
     cy = Expression::Const.new(2)
 
     ax = Expression::Assign.new(x, cx)
-    ay = Expression::Assign.new(y, cy)    
+    ay = Expression::Assign.new(y, cy)
 
     sw = Expression::Swap.new(x, y)
 
@@ -220,7 +220,7 @@ class TestExpression < Test::Unit::TestCase
   #   while (x) do
   #     x = x
   #   end
-  # end    
+  # end
   def test_nested_indent
     x = Expression::Var.new(:x)
     a = Expression::Assign.new(x,x)
@@ -244,5 +244,59 @@ class TestExpression < Test::Unit::TestCase
     assert_raise (SortingVM::OperationLimitError) do
       @svm.run(l)
     end
-  end 
+  end
+
+  #  x = 0
+  #  2.to(5) do |i|
+  #      x = x + 1
+  #  end
+  def test_for
+    c0 = Expression::Const.new(0)
+    c2 = Expression::Const.new(2)
+    c5 = Expression::Const.new(5)
+    x = Expression::Var.new(:x)
+    a = Expression::Assign.new(x, c0)
+    s = Expression::Succ.new(x)
+    ia = Expression::Assign.new(x, s)
+    ib = Expression::Block.new(ia)
+    f = Expression::For.new(c2, c5, ib)
+    ob = Expression::Block.new(a, f)
+    @svm.run(ob)
+    assert_equal(4, @svm.memory[:x])
+    assert_equal(29, @svm.counter)
+    str="x = 0\n"\
+    "2.to(5) do |i|\n"\
+    "  x = x + 1\n"\
+    "end"
+    assert_equal(str, "#{ob}")
+  end
+
+  # 1.to(2) do |i|
+  #   3.to(2) do |j|
+  #     swap here(i, j)
+  #   end
+  # end
+  def test_nested_for
+    c1 = Expression::Const.new(1)
+    c2 = Expression::Const.new(2)
+    c3 = Expression::Const.new(3)
+    i = Expression::Iterator.new(:i)
+    j = Expression::Iterator.new(:j)
+    sw = Expression::Swap.new(i, j)
+    ifor = Expression::For.new(c3, c2, sw)
+    b = Expression::Block.new(ifor)
+    ofor = Expression::For.new(c1, c2, b)
+    @svm.run(ofor)
+    assert_equal([6, 8, 4, 2], @svm.result)
+    str = ""\
+    "1.to(2) do |i|\n"\
+    "  3.to(2) do |j|\n"\
+    "    i1 = i\n"\
+    "    i2 = j\n"\
+    "    result[i1], result[i2] = result[i2], result[i1]\n"\
+    "  end\n"\
+    "end"
+    assert_equal(str, "#{ofor}")
+    assert_equal(50, @svm.counter)
+  end
 end
