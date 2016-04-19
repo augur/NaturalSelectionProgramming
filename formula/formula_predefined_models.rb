@@ -6,6 +6,14 @@ require_relative "formula"
 
 module FormulaPredefinedModels
 
+  MODEL0 = Challenge::Model.new {|input| input[:x]**2}
+  INPUT_GROUP0 = (0...100).map {|i| {:x => i/10.0}}  #non-inclusive
+
+  VARS_LIST0 = [:x]
+  CASE_GROUP0 = Challenge::build_case_group(MODEL0, INPUT_GROUP0)
+  BASE_FORMULA0 = Formula::Variable.new :x
+
+
   # First model describes simple polynom, and should be solved easily
   # x^2 - 8*x + 2.5
   MODEL1 = Challenge::Model.new {|input| input[:x]**2 - 8*input[:x] + 2.5}
@@ -32,4 +40,13 @@ module FormulaPredefinedModels
   VARS_LIST3 = [:x]
   CASE_GROUP3 = Challenge::build_case_group(MODEL3, INPUT_GROUP3)
   BASE_FORMULA3 = Formula::Variable.new :x  
+
+  #6th-pow polynom 0...10.0 (0.1 step)
+  MODEL4 = Challenge::Model.new {|input| 8*input[:x]**6 - 4*input[:x]**5 + 
+      2*input[:x]**4 - 7*input[:x]**3 + 9*input[:x]**2 - input[:x]**1 + 5}
+  INPUT_GROUP4 = (0...100).map {|i| {:x => i/10.0}}  #non-inclusive
+
+  VARS_LIST4 = [:x]
+  CASE_GROUP4 = Challenge::build_case_group(MODEL4, INPUT_GROUP4)
+  BASE_FORMULA4 = Formula::Variable.new :x
 end
