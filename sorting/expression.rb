@@ -30,6 +30,7 @@ module Expression
   # SUCC
   # PRED
   # COMPARISONS: EQUAL, NEQUAL, BIGGER, LESSER
+  # CALCS: ADD, SUBT
 
 
   #Empty Expression, NIL, doesn't increase VM counter
@@ -232,6 +233,48 @@ module Expression
     def execute(vm)
       vm.inc_counter
       @left.execute(vm) < @right.execute(vm)
+    end
+  end
+
+  class Add < Expression
+    attr_reader :left
+    attr_reader :right
+
+    def initialize(left, right)
+      raise ArgumentError.new unless left.is_a?(Expression) and
+                                     right.is_a?(Expression)
+      @left = left
+      @right = right
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      (@left.execute(vm)) + (@right.execute(vm))
+    end
+
+    def to_s
+      "#{left} + #{right}"
+    end
+  end
+
+  class Subt < Expression
+    attr_reader :left
+    attr_reader :right
+
+    def initialize(left, right)
+      raise ArgumentError.new unless left.is_a?(Expression) and
+                                     right.is_a?(Expression)
+      @left = left
+      @right = right
+    end
+
+    def execute(vm)
+      vm.inc_counter
+      (@left.execute(vm)) - (@right.execute(vm))
+    end
+
+    def to_s
+      "#{left} - #{right}"
     end
   end
 

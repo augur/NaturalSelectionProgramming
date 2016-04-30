@@ -145,6 +145,23 @@ class TestExpression < Test::Unit::TestCase
     assert_equal("2 < 5", "#{l}")
   end
 
+
+  def test_add
+    c5 = Expression::Const.new(5)
+    c2 = Expression::Const.new(2)
+    a = Expression::Add.new(c5, c2)
+    assert_equal(7, @svm.run(a))
+    assert_equal("5 + 2", "#{a}")
+  end
+
+  def test_subt
+    c5 = Expression::Const.new(5)
+    c2 = Expression::Const.new(2)
+    s = Expression::Subt.new(c5, c2)
+    assert_equal(3, @svm.run(s))
+    assert_equal("5 - 2", "#{s}")
+  end
+
   def test_block
     x = Expression::Var.new(:x)
     y = Expression::Var.new(:y)
