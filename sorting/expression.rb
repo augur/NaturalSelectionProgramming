@@ -351,7 +351,8 @@ module Expression
 
   ### Loops ###
   # Loop
-  # For (Upto/Downto)
+  # Upto
+  # Downto
 
   class Loop < CommandStruct
     attr_reader :condition
@@ -378,15 +379,20 @@ module Expression
     end
   end
 
+  #Abstract super-class for Upto/Downto
   class For < CommandStruct
     attr_reader :from
     attr_reader :to
     attr_reader :block
 
+
+
     def initialize(from, to, block)
+      raise "Abstract class construction" if self.instance_of? For
       raise ArgumentError.new unless from.is_a?(Expression) and
                                      to.is_a?(Expression) and
                                      block.is_a?(Block)
+
       @from = from
       @to = to
       @block = block
@@ -396,39 +402,65 @@ module Expression
     end
 
     def execute(vm)
-      f = @from.execute(vm)
-      t = @to.execute(vm)
-      i = BASE_ITERATOR
+      @f = @from.execute(vm)
+      @t = @to.execute(vm)
+      @i = BASE_ITERATOR
       while (not vm.memory[i].nil?)
-        i = i.succ
+        @i = @i.succ
       end
-
-      if f <= t
-        f.upto t do |itr|
-          vm.inc_counter 2
-          vm.memory[i] = itr
-          @block.execute(vm)
-        end
-      else
-        f.downto t do |itr|
-          vm.inc_counter 2
-          vm.memory[i] = itr
-          @block.execute(vm)
-        end
-      end
-      vm.memory.delete(i)
     end
 
     def to_s
       str_indent = " " * @indent
       itr = BASE_ITERATOR
       (@indent/2).times do itr = itr.succ end
-      str_indent + "#{@from}.to(#{@to}) do |#{itr}|\n"+
+      str_indent + "(#{@from}).#{rword}(#{@to}) do |#{itr}|\n"+
       "#{@block}\n"+
       str_indent + "end"
     end
+
+    protected 
+
+    attr_reader :f
+    attr_reader :t
+    attr_reader :i    
   end
 
+  class Upto < For
+    def execute(vm)
+      super(vm)
+      f.upto t do |itr|
+        vm.inc_counter 2
+        vm.memory[i] = itr
+        @block.execute(vm)
+      end      
+      vm.memory.delete(i)      
+    end
+
+    protected
+
+    def rword
+      "upto"
+    end
+  end  
+
+  class Downto < For
+    def execute(vm)
+      super(vm)
+      f.downto t do |itr|
+        vm.inc_counter 2
+        vm.memory[i] = itr
+        @block.execute(vm)
+      end      
+      vm.memory.delete(i)      
+    end
+
+    protected
+
+    def rword
+      "downto"
+    end
+  end  
   ### Conditionals ###
   # IF
 

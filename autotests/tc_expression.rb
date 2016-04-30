@@ -276,20 +276,20 @@ class TestExpression < Test::Unit::TestCase
     s = Expression::Succ.new(x)
     ia = Expression::Assign.new(x, s)
     ib = Expression::Block.new(ia)
-    f = Expression::For.new(c2, c5, ib)
+    f = Expression::Upto.new(c2, c5, ib)
     ob = Expression::Block.new(a, f)
     @svm.run(ob)
     assert_equal(4, @svm.memory[:x])
     assert_equal(29, @svm.counter)
     str="x = 0\n"\
-    "2.to(5) do |i|\n"\
+    "(2).upto(5) do |i|\n"\
     "  x = x + 1\n"\
     "end"
     assert_equal(str, "#{ob}")
   end
 
-  # 1.to(2) do |i|
-  #   3.to(2) do |j|
+  # (1).upto(2) do |i|
+  #   (3).downto(2) do |j|
   #     swap here(i, j)
   #   end
   # end
@@ -300,14 +300,14 @@ class TestExpression < Test::Unit::TestCase
     i = Expression::Iterator.new(:i)
     j = Expression::Iterator.new(:j)
     sw = Expression::Swap.new(i, j)
-    ifor = Expression::For.new(c3, c2, sw)
+    ifor = Expression::Downto.new(c3, c2, sw)
     b = Expression::Block.new(ifor)
-    ofor = Expression::For.new(c1, c2, b)
+    ofor = Expression::Upto.new(c1, c2, b)
     @svm.run(ofor)
     assert_equal([6, 8, 4, 2], @svm.result)
     str = ""\
-    "1.to(2) do |i|\n"\
-    "  3.to(2) do |j|\n"\
+    "(1).upto(2) do |i|\n"\
+    "  (3).downto(2) do |j|\n"\
     "    i1 = i\n"\
     "    i2 = j\n"\
     "    result[i1], result[i2] = result[i2], result[i1]\n"\
