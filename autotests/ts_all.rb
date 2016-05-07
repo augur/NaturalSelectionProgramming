@@ -15,3 +15,4 @@ require_relative "tc_formula_challenge"
 
 require_relative "tc_sorting_vm"
 require_relative "tc_expression"
+require_relative "tc_sorting_algs_probe"
